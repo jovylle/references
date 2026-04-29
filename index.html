@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reference System</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel hero">
+        <p class="eyebrow">Firebase / Netlify / Firestore</p>
+        <h1>Reference requests without a backend.</h1>
+        <p class="lede">
+          Sign in with Google, generate a private request link, and let the other person confirm it from a minimal page.
+        </p>
+        <div class="auth-row">
+          <button id="signInBtn" class="button button-primary">Continue with Google</button>
+          <button id="signOutBtn" class="button button-secondary hidden">Sign out</button>
+        </div>
+        <p id="authStatus" class="status">Not signed in.</p>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Create request</h2>
+          <form id="requestForm" class="form hidden">
+            <label>
+              Recipient email
+              <input id="toEmail" type="email" placeholder="friend@email.com" autocomplete="email" required />
+            </label>
+            <label>
+              Position / context
+              <input id="position" type="text" placeholder="Backend Dev @ Project Alpha" maxlength="120" required />
+            </label>
+            <button type="submit" class="button button-primary">Generate link</button>
+          </form>
+          <div id="requestHint" class="hint">
+            Sign in to create a request link.
+          </div>
+          <div id="createdLink" class="result hidden">
+            <p class="result-label">Request link</p>
+            <a id="createdLinkValue" href="#" target="_blank" rel="noreferrer"></a>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Your profile</h2>
+          <div id="profileCard" class="profile-card">
+            <p class="muted">No profile loaded yet.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="/src/index.js"></script>
+  </body>
+</html>
