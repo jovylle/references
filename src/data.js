@@ -86,9 +86,20 @@ export async function updateUserName(userId, newName) {
   await updateDoc(doc(db, "users", userId), { name: newName.trim() });
 }
 
-export async function updateReference(referenceId, position) {
-  if (!position?.trim()) throw new Error("Position cannot be empty.");
-  await updateDoc(doc(db, "references", referenceId), { position: position.trim() });
+export async function updateReference(referenceId, { position, fromUserName } = {}) {
+  const payload = {};
+  if (position !== undefined) {
+    if (!position?.trim()) throw new Error("Position cannot be empty.");
+    payload.position = position.trim();
+  }
+  if (fromUserName !== undefined) {
+    if (!fromUserName?.trim()) throw new Error("Name cannot be empty.");
+    payload.fromUserName = fromUserName.trim();
+  }
+  if (Object.keys(payload).length === 0) {
+    throw new Error("Nothing to update.");
+  }
+  await updateDoc(doc(db, "references", referenceId), payload);
 }
 
 export async function deleteReference(referenceId) {
