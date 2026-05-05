@@ -71,11 +71,12 @@ export async function getUserBySlug(slug) {
   return { id: docSnap.id, ...docSnap.data() };
 }
 
-export async function createRequest(user, toEmail, position) {
+export async function createRequest(user, toName, toEmail, position) {
   const token = generateToken();
   const ref = await addDoc(collection(db, "requests"), {
     fromUserId: user.uid,
     fromUserEmail: user.email || "",
+    toName,
     toEmail,
     position,
     token,
@@ -103,6 +104,7 @@ export async function approveRequest(requestRecord, currentUser) {
   const createdReference = await addDoc(collection(db, "references"), {
     fromUserId: data.fromUserId,
     fromUserEmail: data.fromUserEmail || "",
+    fromUserName: data.toName || "",
     toUserId: currentUser.uid,
     toUserEmail: currentUser.email || "",
     position: data.position,

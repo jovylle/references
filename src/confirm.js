@@ -31,7 +31,7 @@ async function renderRequest(user) {
   const data = requestRecord.data();
   requestState.innerHTML = `
     <div class="stack">
-      <p class="reference-name">${data.toEmail}</p>
+      <p class="reference-name">${data.toName}</p>
       <p class="reference-position">${data.position}</p>
       <p class="muted">This request is waiting for confirmation.</p>
       <button id="approveBtn" class="button button-primary">Confirm reference</button>

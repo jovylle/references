@@ -25,11 +25,23 @@ async function render() {
   }
 
   const references = await getReferences(user.id);
+  const refList = references
+    .map((ref) => {
+      const year = ref.createdAt?.toDate?.().getFullYear?.() || new Date().getFullYear();
+      return `
+    <div class="reference-item">
+      <p class="reference-name">${ref.fromUserName || "Anonymous"}</p>
+      <p class="reference-position">${ref.position}</p>
+      <p class="reference-confirmation">✔ Confirmed ${year}</p>
+    </div>
+  `;
+    })
+    .join("");
+
   profileState.innerHTML = `
-    <div class="stack">
-      <p class="reference-name">${user.name}</p>
-      <p class="reference-position">${references[0]?.position || "Reference pending"}</p>
-      <p class="reference-confirmation">${references.length ? "✔ Mutual confirmation" : "No confirmed reference yet"}</p>
+    <div>
+      <h1>${user.name}</h1>
+      ${references.length > 0 ? `<div>${refList}</div>` : '<p class="muted">No confirmed references yet.</p>'}
     </div>
   `;
 }

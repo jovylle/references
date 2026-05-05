@@ -74,11 +74,12 @@ requestForm.addEventListener("submit", async (event) => {
   const user = auth.currentUser;
   if (!user) return;
 
+  const toName = document.getElementById("toName").value.trim();
   const toEmail = document.getElementById("toEmail").value.trim();
   const position = document.getElementById("position").value.trim();
 
   try {
-    const result = await createRequest(user, toEmail, position);
+    const result = await createRequest(user, toName, toEmail, position);
     createdLink.classList.remove("hidden");
     createdLinkValue.textContent = result.link;
     createdLinkValue.href = result.link;
