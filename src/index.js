@@ -11,6 +11,7 @@ import {
   getUserById,
   signOutIfNeeded,
   updateUserSlug,
+  updateUserLinks,
   getFriendlyErrorMessage,
 } from "./data.js";
 
@@ -43,9 +44,14 @@ async function renderSignedIn(user) {
   if (profile) {
     const references = await getReferences(user.uid);
     const publicSlug = profile.slug || "";
+    const portfolio = profile.portfolio || "";
+    const github = profile.github || "";
+    const linkedin = profile.linkedin || "";
+
     profileCard.innerHTML = `
       <div class="stack">
         <p class="reference-name">${profile.name}</p>
+
         <div style="display: grid; gap: 8px;">
           <label style="font-size: 0.95rem; color: var(--muted);">
             Your slug
@@ -53,6 +59,24 @@ async function renderSignedIn(user) {
           </label>
           <button id="updateSlugBtn" class="button button-secondary">Save slug</button>
         </div>
+
+        <div style="display: grid; gap: 8px; margin-top: 16px;">
+          <p style="font-size: 0.95rem; color: var(--muted); margin: 0;">Profile links</p>
+          <label style="font-size: 0.85rem; color: var(--muted);">
+            Portfolio
+            <input id="portfolioInput" type="url" value="${portfolio}" placeholder="https://example.com" style="margin-top: 4px;" />
+          </label>
+          <label style="font-size: 0.85rem; color: var(--muted);">
+            GitHub
+            <input id="githubInput" type="url" value="${github}" placeholder="https://github.com/username" style="margin-top: 4px;" />
+          </label>
+          <label style="font-size: 0.85rem; color: var(--muted);">
+            LinkedIn
+            <input id="linkedinInput" type="url" value="${linkedin}" placeholder="https://linkedin.com/in/username" style="margin-top: 4px;" />
+          </label>
+          <button id="updateLinksBtn" class="button button-secondary">Save links</button>
+        </div>
+
         <p class="reference-confirmation">${references.length} confirmed reference${references.length === 1 ? "" : "s"}</p>
         <a href="/${publicSlug}" target="_blank" rel="noreferrer">Public profile</a>
       </div>
@@ -80,6 +104,31 @@ async function renderSignedIn(user) {
         console.error(error);
         authStatus.textContent = getFriendlyErrorMessage(error);
         btn.textContent = "Save slug";
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById("updateLinksBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("updateLinksBtn");
+      const portfolio = document.getElementById("portfolioInput").value.trim();
+      const github = document.getElementById("githubInput").value.trim();
+      const linkedin = document.getElementById("linkedinInput").value.trim();
+
+      try {
+        btn.disabled = true;
+        btn.textContent = "Saving links...";
+        await updateUserLinks(user.uid, { portfolio, github, linkedin });
+        btn.textContent = "Links updated!";
+        authStatus.textContent = "Links updated!";
+        setTimeout(() => {
+          btn.textContent = "Save links";
+          btn.disabled = false;
+          authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+        }, 2000);
+      } catch (error) {
+        console.error(error);
+        authStatus.textContent = getFriendlyErrorMessage(error);
+        btn.textContent = "Save links";
         btn.disabled = false;
       }
     });

@@ -62,11 +62,23 @@ export async function ensureUserDocument(user) {
       slug,
       email: user.email || "",
       photoURL: user.photoURL || "",
+      portfolio: "",
+      github: "",
+      linkedin: "",
       updatedAt: serverTimestamp(),
     },
     { merge: true },
   );
   return { slug };
+}
+
+export async function updateUserLinks(userId, links) {
+  const { portfolio, github, linkedin } = links;
+  await updateDoc(doc(db, "users", userId), {
+    portfolio: portfolio || "",
+    github: github || "",
+    linkedin: linkedin || "",
+  });
 }
 
 export async function getUserById(userId) {

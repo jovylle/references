@@ -38,9 +38,19 @@ async function render() {
     })
     .join("");
 
+  const linksHTML = (user.portfolio || user.github || user.linkedin)
+    ? `<div style="display: flex; gap: 16px; margin: 16px 0;">
+        ${user.portfolio ? `<a href="${user.portfolio}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">Portfolio ↗</a>` : ""}
+        ${user.github ? `<a href="${user.github}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">GitHub ↗</a>` : ""}
+        ${user.linkedin ? `<a href="${user.linkedin}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">LinkedIn ↗</a>` : ""}
+      </div>`
+    : "";
+
   profileState.innerHTML = `
     <div>
       <h1>${user.name}</h1>
+      ${linksHTML}
+      <h2 style="margin-top: 32px; font-size: 1.2rem;">References</h2>
       ${references.length > 0 ? `<div>${refList}</div>` : '<p class="muted">No confirmed references yet.</p>'}
     </div>
   `;
