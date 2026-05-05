@@ -25,6 +25,21 @@
         </div>
       </section>
 
+      <section class="panel hidden" id="reciprocalSection">
+        <h2 style="margin-top: 0; font-size: 1.3rem;">Add reciprocal reference</h2>
+        <p style="color: var(--muted); margin: 12px 0 20px;">
+          Optionally add this person to your references too.
+        </p>
+        <form id="reciprocalForm" class="form">
+          <label>
+            Their position / context
+            <input id="reciprocalPosition" type="text" placeholder="Backend Dev @ Project Alpha" maxlength="120" />
+          </label>
+          <button type="submit" class="button button-secondary">Add reciprocal reference</button>
+          <button type="button" id="skipReciprocal" class="button button-secondary">Skip</button>
+        </form>
+      </section>
+
       <footer style="text-align: center; margin-top: 40px; padding: 20px; color: var(--muted); font-size: 0.9rem;">
         <a href="/privacy.html" style="color: var(--muted);">Privacy Policy</a>
       </footer>
