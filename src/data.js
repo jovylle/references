@@ -81,6 +81,20 @@ export async function updateUserLinks(userId, links) {
   });
 }
 
+export async function updateUserName(userId, newName) {
+  if (!newName?.trim()) throw new Error("Name cannot be empty.");
+  await updateDoc(doc(db, "users", userId), { name: newName.trim() });
+}
+
+export async function updateReference(referenceId, position) {
+  if (!position?.trim()) throw new Error("Position cannot be empty.");
+  await updateDoc(doc(db, "references", referenceId), { position: position.trim() });
+}
+
+export async function deleteReference(referenceId) {
+  await updateDoc(doc(db, "references", referenceId), { status: "hidden" });
+}
+
 export async function getUserById(userId) {
   const snap = await getDoc(doc(db, "users", userId));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;

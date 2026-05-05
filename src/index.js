@@ -12,6 +12,7 @@ import {
   signOutIfNeeded,
   updateUserSlug,
   updateUserLinks,
+  updateUserName,
   getFriendlyErrorMessage,
 } from "./data.js";
 
@@ -23,12 +24,14 @@ const requestHint = document.getElementById("requestHint");
 const createdLink = document.getElementById("createdLink");
 const createdLinkValue = document.getElementById("createdLinkValue");
 const profileCard = document.getElementById("profileCard");
+const infoSection = document.getElementById("infoSection");
 
 function renderSignedOut() {
   requestForm.classList.add("hidden");
   requestHint.classList.remove("hidden");
   signInBtn.classList.remove("hidden");
   signOutBtn.classList.add("hidden");
+  infoSection.classList.remove("hidden");
   authStatus.textContent = "Not signed in.";
   profileCard.innerHTML = '<p class="muted">No profile loaded yet.</p>';
 }
@@ -36,6 +39,7 @@ function renderSignedOut() {
 async function renderSignedIn(user) {
   requestForm.classList.remove("hidden");
   requestHint.classList.add("hidden");
+  infoSection.classList.add("hidden");
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
   authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
@@ -50,9 +54,15 @@ async function renderSignedIn(user) {
 
     profileCard.innerHTML = `
       <div class="stack">
-        <p class="reference-name">${profile.name}</p>
-
         <div style="display: grid; gap: 8px;">
+          <label style="font-size: 0.95rem; color: var(--muted);">
+            Your name
+            <input id="nameInput" type="text" value="${profile.name}" maxlength="120" style="margin-top: 6px;" />
+          </label>
+          <button id="updateNameBtn" class="button button-secondary">Save name</button>
+        </div>
+
+        <div style="display: grid; gap: 8px; margin-top: 16px;">
           <label style="font-size: 0.95rem; color: var(--muted);">
             Your slug
             <input id="slugInput" type="text" value="${publicSlug}" maxlength="40" style="margin-top: 6px;" />
@@ -81,6 +91,32 @@ async function renderSignedIn(user) {
         <a href="/${publicSlug}" target="_blank" rel="noreferrer">Public profile</a>
       </div>
     `;
+
+    document.getElementById("updateNameBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("updateNameBtn");
+      const newName = document.getElementById("nameInput").value.trim();
+      if (!newName) {
+        authStatus.textContent = "Name cannot be empty.";
+        return;
+      }
+      try {
+        btn.disabled = true;
+        btn.textContent = "Saving name...";
+        await updateUserName(user.uid, newName);
+        btn.textContent = "Name updated!";
+        authStatus.textContent = "Name updated!";
+        setTimeout(() => {
+          btn.textContent = "Save name";
+          btn.disabled = false;
+          authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+        }, 2000);
+      } catch (error) {
+        console.error(error);
+        authStatus.textContent = getFriendlyErrorMessage(error);
+        btn.textContent = "Save name";
+        btn.disabled = false;
+      }
+    });
 
     document.getElementById("updateSlugBtn").addEventListener("click", async () => {
       const btn = document.getElementById("updateSlugBtn");
