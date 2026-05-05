@@ -57,18 +57,28 @@ async function renderSignedIn(user) {
     `;
 
     document.getElementById("updateSlugBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("updateSlugBtn");
       const newSlug = document.getElementById("slugInput").value.trim();
       if (!newSlug) {
         authStatus.textContent = "Slug cannot be empty.";
         return;
       }
       try {
+        btn.disabled = true;
+        btn.textContent = "Saving slug...";
         await updateUserSlug(user.uid, newSlug);
+        btn.textContent = "Slug updated!";
         authStatus.textContent = "Slug updated!";
-        await renderSignedIn(user);
+        setTimeout(() => {
+          btn.textContent = "Save slug";
+          btn.disabled = false;
+          authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+        }, 2000);
       } catch (error) {
         console.error(error);
         authStatus.textContent = getFriendlyErrorMessage(error);
+        btn.textContent = "Save slug";
+        btn.disabled = false;
       }
     });
   }
@@ -98,16 +108,27 @@ requestForm.addEventListener("submit", async (event) => {
   const user = auth.currentUser;
   if (!user) return;
 
+  const submitBtn = requestForm.querySelector("button[type=submit]");
   const toName = document.getElementById("toName").value.trim();
   const position = document.getElementById("position").value.trim();
 
   try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Generating link...";
     const result = await createRequest(user, toName, position);
     createdLink.classList.remove("hidden");
     createdLinkValue.textContent = result.link;
     createdLinkValue.href = result.link;
+    submitBtn.textContent = "Link generated!";
+    setTimeout(() => {
+      submitBtn.textContent = "Generate link";
+      submitBtn.disabled = false;
+    }, 2000);
   } catch (error) {
+    console.error(error);
     authStatus.textContent = getFriendlyErrorMessage(error);
+    submitBtn.textContent = "Generate link";
+    submitBtn.disabled = false;
   }
 });
 

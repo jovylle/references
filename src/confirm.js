@@ -39,7 +39,10 @@ async function renderRequest(user) {
   `;
 
   document.getElementById("approveBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("approveBtn");
     try {
+      btn.disabled = true;
+      btn.textContent = "Confirming...";
       await approveRequest(requestRecord, user);
       requestState.innerHTML = `
         <div class="stack">
@@ -48,12 +51,13 @@ async function renderRequest(user) {
           <p class="reference-confirmation">✔ Confirmed</p>
         </div>
       `;
+      btn.remove();
     } catch (error) {
       console.error(error);
       authStatus.textContent = getFriendlyErrorMessage(error);
+      btn.disabled = false;
+      btn.textContent = "Confirm reference";
     }
-
-    document.getElementById("approveBtn").remove();
   });
 }
 
