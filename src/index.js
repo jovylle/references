@@ -10,6 +10,7 @@ import {
   getReferences,
   getUserById,
   signOutIfNeeded,
+  updateUserSlug,
 } from "./data.js";
 
 const signInBtn = document.getElementById("signInBtn");
@@ -42,11 +43,32 @@ async function renderSignedIn(user) {
     profileCard.innerHTML = `
       <div class="stack">
         <p class="reference-name">${profile.name}</p>
-        <p class="reference-position">@${publicSlug || "profile"}</p>
+        <div style="display: grid; gap: 8px;">
+          <label style="font-size: 0.95rem; color: var(--muted);">
+            Your slug
+            <input id="slugInput" type="text" value="${publicSlug}" maxlength="40" style="margin-top: 6px;" />
+          </label>
+          <button id="updateSlugBtn" class="button button-secondary">Save slug</button>
+        </div>
         <p class="reference-confirmation">${references.length} confirmed reference${references.length === 1 ? "" : "s"}</p>
         <a href="/${publicSlug}" target="_blank" rel="noreferrer">Public profile</a>
       </div>
     `;
+
+    document.getElementById("updateSlugBtn").addEventListener("click", async () => {
+      const newSlug = document.getElementById("slugInput").value.trim();
+      if (!newSlug) {
+        authStatus.textContent = "Slug cannot be empty.";
+        return;
+      }
+      try {
+        await updateUserSlug(user.uid, newSlug);
+        authStatus.textContent = "Slug updated!";
+        await renderSignedIn(user);
+      } catch (error) {
+        authStatus.textContent = error.message || "Could not update slug.";
+      }
+    });
   }
 }
 

@@ -132,6 +132,18 @@ export async function getReferences(userId) {
   return snap.docs.map((entry) => ({ id: entry.id, ...entry.data() }));
 }
 
+export async function updateUserSlug(userId, newSlug) {
+  const slug = slugify(newSlug);
+  if (!slug) throw new Error("Invalid slug.");
+
+  const existing = await getDocs(query(collection(db, "users"), where("slug", "==", slug), limit(1)));
+  if (!existing.empty && existing.docs[0].id !== userId) {
+    throw new Error("Slug already taken. Try another.");
+  }
+
+  await updateDoc(doc(db, "users", userId), { slug });
+}
+
 export async function signOutIfNeeded() {
   return signOut(auth);
 }
