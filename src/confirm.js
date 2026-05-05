@@ -43,15 +43,17 @@ async function renderRequest(user) {
       await approveRequest(requestRecord, user);
       requestState.innerHTML = `
         <div class="stack">
-          <p class="reference-name">${data.toEmail}</p>
+          <p class="reference-name">${data.toName}</p>
           <p class="reference-position">${data.position}</p>
-          <p class="reference-confirmation">✔ Mutual confirmation</p>
+          <p class="reference-confirmation">✔ Confirmed</p>
         </div>
       `;
     } catch (error) {
       console.error(error);
       authStatus.textContent = getFriendlyErrorMessage(error);
     }
+
+    document.getElementById("approveBtn").remove();
   });
 }
 

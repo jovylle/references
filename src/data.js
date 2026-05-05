@@ -82,13 +82,12 @@ export async function getUserBySlug(slug) {
   return { id: docSnap.id, ...docSnap.data() };
 }
 
-export async function createRequest(user, toName, toEmail, position) {
+export async function createRequest(user, toName, position) {
   const token = generateToken();
   const ref = await addDoc(collection(db, "requests"), {
     fromUserId: user.uid,
     fromUserEmail: user.email || "",
     toName,
-    toEmail,
     position,
     token,
     status: "pending",
