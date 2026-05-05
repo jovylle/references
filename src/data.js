@@ -112,11 +112,11 @@ export async function getRequestByToken(token) {
 export async function approveRequest(requestRecord, currentUser) {
   const data = requestRecord.data();
   const createdReference = await addDoc(collection(db, "references"), {
-    fromUserId: data.fromUserId,
-    fromUserEmail: data.fromUserEmail || "",
-    fromUserName: data.toName || "",
-    toUserId: currentUser.uid,
-    toUserEmail: currentUser.email || "",
+    fromUserId: currentUser.uid,
+    fromUserEmail: currentUser.email || "",
+    fromUserName: currentUser.displayName || currentUser.email?.split("@")[0] || "Unknown",
+    toUserId: data.fromUserId,
+    toUserEmail: data.fromUserEmail || "",
     position: data.position,
     status: "confirmed",
     createdAt: serverTimestamp(),

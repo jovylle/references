@@ -101,7 +101,7 @@ async function renderRequest(user) {
           await addDoc(collection(db, "references"), {
             fromUserId: user.uid,
             fromUserEmail: user.email || "",
-            fromUserName: fromUser?.name || user.displayName || "Unknown",
+            fromUserName: user.displayName || user.email?.split("@")[0] || "Unknown",
             toUserId: data.fromUserId,
             toUserEmail: data.fromUserEmail || "",
             position: reciprocalPosition,
@@ -153,6 +153,7 @@ onAuthStateChanged(auth, async (user) => {
   if (!user) {
     authStatus.textContent = "Not signed in.";
     requestState.innerHTML = '<p class="muted">Ready to confirm after you sign in.</p>';
+    signInBtn.classList.remove("hidden");
     signOutBtn.classList.add("hidden");
     try {
       await loadRequestPreview();
@@ -164,6 +165,7 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
   preSignInRequest.classList.add("hidden");
   authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
