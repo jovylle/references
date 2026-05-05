@@ -26,6 +26,7 @@ const profileCard = document.getElementById("profileCard");
 function renderSignedOut() {
   requestForm.classList.add("hidden");
   requestHint.classList.remove("hidden");
+  signInBtn.classList.remove("hidden");
   signOutBtn.classList.add("hidden");
   authStatus.textContent = "Not signed in.";
   profileCard.innerHTML = '<p class="muted">No profile loaded yet.</p>';
@@ -34,6 +35,7 @@ function renderSignedOut() {
 async function renderSignedIn(user) {
   requestForm.classList.remove("hidden");
   requestHint.classList.add("hidden");
+  signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
   authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
 

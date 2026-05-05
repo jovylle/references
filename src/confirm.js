@@ -10,9 +10,29 @@ const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
 const authStatus = document.getElementById("authStatus");
 const requestState = document.getElementById("requestState");
+const preSignInRequest = document.getElementById("preSignInRequest");
 
 function getToken() {
   return new URLSearchParams(window.location.search).get("token");
+}
+
+async function loadRequestPreview() {
+  const token = getToken();
+  if (!token) {
+    requestState.innerHTML = '<p class="muted">Missing token.</p>';
+    return;
+  }
+
+  const requestRecord = await getRequestByToken(token);
+  if (!requestRecord) {
+    requestState.innerHTML = '<p class="muted">Request not found.</p>';
+    return;
+  }
+
+  const data = requestRecord.data();
+  document.getElementById("preName").textContent = data.toName;
+  document.getElementById("prePosition").textContent = data.position;
+  preSignInRequest.classList.remove("hidden");
 }
 
 async function renderRequest(user) {
@@ -132,12 +152,20 @@ signOutBtn.addEventListener("click", async () => {
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     authStatus.textContent = "Not signed in.";
-    requestState.innerHTML = '<p class="muted">Sign in to confirm the request.</p>';
+    requestState.innerHTML = '<p class="muted">Ready to confirm after you sign in.</p>';
     signOutBtn.classList.add("hidden");
+    try {
+      await loadRequestPreview();
+    } catch (error) {
+      console.error(error);
+      preSignInRequest.classList.add("hidden");
+      requestState.innerHTML = `<p class="muted">Could not load request.</p>`;
+    }
     return;
   }
 
   signOutBtn.classList.remove("hidden");
+  preSignInRequest.classList.add("hidden");
   authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
 
   try {
