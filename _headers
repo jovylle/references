@@ -1,0 +1,23 @@
+/*
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/confirm.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/profile.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/about.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/privacy.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/styles.css
+  Cache-Control: public, max-age=604800
+
+/src/*
+  Cache-Control: public, max-age=604800
