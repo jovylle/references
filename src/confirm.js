@@ -4,7 +4,7 @@ import {
   provider,
   signInWithPopup,
 } from "./firebase.js";
-import { approveRequest, ensureUserDocument, getRequestByToken, signOutIfNeeded } from "./data.js";
+import { approveRequest, ensureUserDocument, getRequestByToken, signOutIfNeeded, getFriendlyErrorMessage } from "./data.js";
 
 const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
@@ -49,7 +49,8 @@ async function renderRequest(user) {
         </div>
       `;
     } catch (error) {
-      authStatus.textContent = error.message || "Could not confirm reference.";
+      console.error(error);
+      authStatus.textContent = getFriendlyErrorMessage(error);
     }
   });
 }
@@ -58,7 +59,8 @@ signInBtn.addEventListener("click", async () => {
   try {
     await signInWithPopup(auth, provider);
   } catch (error) {
-    authStatus.textContent = error.message || "Sign-in failed.";
+    console.error(error);
+    authStatus.textContent = getFriendlyErrorMessage(error);
   }
 });
 
@@ -66,7 +68,8 @@ signOutBtn.addEventListener("click", async () => {
   try {
     await signOutIfNeeded();
   } catch (error) {
-    authStatus.textContent = error.message || "Sign-out failed.";
+    console.error(error);
+    authStatus.textContent = getFriendlyErrorMessage(error);
   }
 });
 
@@ -85,6 +88,7 @@ onAuthStateChanged(auth, async (user) => {
     await ensureUserDocument(user);
     await renderRequest(user);
   } catch (error) {
-    requestState.innerHTML = `<p class="muted">${error.message || "Failed to load request."}</p>`;
+    console.error(error);
+    requestState.innerHTML = `<p class="muted">${getFriendlyErrorMessage(error)}</p>`;
   }
 });

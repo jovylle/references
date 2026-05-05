@@ -11,6 +11,7 @@ import {
   getUserById,
   signOutIfNeeded,
   updateUserSlug,
+  getFriendlyErrorMessage,
 } from "./data.js";
 
 const signInBtn = document.getElementById("signInBtn");
@@ -66,7 +67,8 @@ async function renderSignedIn(user) {
         authStatus.textContent = "Slug updated!";
         await renderSignedIn(user);
       } catch (error) {
-        authStatus.textContent = error.message || "Could not update slug.";
+        console.error(error);
+        authStatus.textContent = getFriendlyErrorMessage(error);
       }
     });
   }
@@ -77,7 +79,7 @@ signInBtn.addEventListener("click", async () => {
     const result = await signInWithPopup(auth, provider);
     await ensureUserDocument(result.user);
   } catch (error) {
-    authStatus.textContent = error.message || "Sign-in failed.";
+    authStatus.textContent = getFriendlyErrorMessage(error);
   }
 });
 
@@ -87,7 +89,7 @@ signOutBtn.addEventListener("click", async () => {
     createdLink.classList.add("hidden");
     createdLinkValue.textContent = "";
   } catch (error) {
-    authStatus.textContent = error.message || "Sign-out failed.";
+    authStatus.textContent = getFriendlyErrorMessage(error);
   }
 });
 
@@ -106,7 +108,7 @@ requestForm.addEventListener("submit", async (event) => {
     createdLinkValue.textContent = result.link;
     createdLinkValue.href = result.link;
   } catch (error) {
-    authStatus.textContent = error.message || "Could not create request.";
+    authStatus.textContent = getFriendlyErrorMessage(error);
   }
 });
 
@@ -120,6 +122,7 @@ onAuthStateChanged(auth, async (user) => {
     await ensureUserDocument(user);
     await renderSignedIn(user);
   } catch (error) {
-    authStatus.textContent = error.message || "Failed to load user profile.";
+    console.error(error);
+    authStatus.textContent = getFriendlyErrorMessage(error);
   }
 });

@@ -31,6 +31,17 @@ export function generateToken() {
   return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 }
 
+export function getFriendlyErrorMessage(error) {
+  const code = error?.code || "";
+  const messages = {
+    "auth/popup-closed-by-user": "Sign-in was cancelled.",
+    "auth/network-request-failed": "Network error. Check your connection and try again.",
+    "auth/operation-not-allowed": "Sign-in is not enabled. Please try again later.",
+    "auth/unauthorized-domain": "This domain is not authorized. Contact support.",
+  };
+  return messages[code] || error?.message || "An error occurred. Please try again.";
+}
+
 export async function ensureUserDocument(user) {
   const existing = await getDoc(doc(db, "users", user.uid));
   const existingSlug = existing.exists() ? existing.data().slug : "";
