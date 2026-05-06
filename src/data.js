@@ -161,19 +161,22 @@ export async function getRequestByToken(token, options = {}) {
 
 export async function approveRequest(requestRecord, currentUser) {
   const requestRef = requestRecord.ref;
-  const referencesCol = collection(db, "references");
-  const referenceRef = doc(referencesCol);
+  const referenceRef = doc(db, "references", requestRecord.id);
 
   await runTransaction(db, async (tx) => {
     const latestRequestSnap = await tx.get(requestRef);
     if (!latestRequestSnap.exists()) throw new Error("Request not found.");
+    const existingReferenceSnap = await tx.get(referenceRef);
 
     const latestData = latestRequestSnap.data();
     if (latestData.status !== "pending") {
+      // Idempotent success path: request was already confirmed to this reference.
+      if (latestData.referenceId === referenceRef.id && existingReferenceSnap.exists()) return;
       throw new Error("This request is already confirmed.");
     }
 
     tx.set(referenceRef, {
+      requestId: requestRecord.id,
       fromUserId: currentUser.uid,
       fromUserEmail: currentUser.email || "",
       fromUserName: currentUser.displayName || currentUser.email?.split("@")[0] || "Unknown",
