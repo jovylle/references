@@ -1,33 +1,33 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
+    match /usersC/{userId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-    match /references/{refId} {
+    match /referencesC/{refId} {
       allow read: if true;
       allow create: if request.auth != null;
       allow delete: if false;
       // Profile owner may adjust how a reference appears, or hide it.
       allow update: if request.auth != null
-        && resource.data.toUserId == request.auth.uid
-        && request.resource.data.fromUserId == resource.data.fromUserId
-        && request.resource.data.toUserId == resource.data.toUserId
-        && request.resource.data.fromUserEmail == resource.data.fromUserEmail
-        && request.resource.data.toUserEmail == resource.data.toUserEmail;
+        && resource.data.toUserIdF == request.auth.uid
+        && request.resource.data.fromUserIdF == resource.data.fromUserIdF
+        && request.resource.data.toUserIdF == resource.data.toUserIdF
+        && request.resource.data.fromUserEmailF == resource.data.fromUserEmailF
+        && request.resource.data.toUserEmailF == resource.data.toUserEmailF;
     }
 
-    match /requests/{requestId} {
+    match /requestsC/{requestId} {
       allow create: if request.auth != null;
       // Pending only: lets anyone with the link preview name/position before signing in.
       // Signed-in users may read any request (e.g. already confirmed when revisiting).
-      allow read: if request.auth != null || resource.data.status == "pending";
+      allow read: if request.auth != null || resource.data.statusF == "pending";
       allow update: if request.auth != null
-        && resource.data.status == "pending"
-        && request.resource.data.status == "confirmed"
-        && request.resource.data.confirmedBy == request.auth.uid;
+        && resource.data.statusF == "pending"
+        && request.resource.data.statusF == "confirmed"
+        && request.resource.data.confirmedByF == request.auth.uid;
       allow delete: if false;
     }
   }

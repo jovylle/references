@@ -61,7 +61,7 @@ async function renderSignedIn(user, slug) {
   signOutBtn.classList.remove("hidden");
   authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
 
-  const resolvedSlug = slug || (await getUserById(user.uid))?.slug || "";
+  const resolvedSlug = slug || (await getUserById(user.uid))?.slugF || "";
   setHomeProfileLinks(resolvedSlug);
 }
 

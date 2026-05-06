@@ -75,8 +75,8 @@ async function route() {
   if (!slug) {
     if (currentUser) {
       const existing = await getUserById(currentUser.uid);
-      const mySlug = existing?.slug
-        ? existing.slug
+      const mySlug = existing?.slugF
+        ? existing.slugF
         : (await ensureUserDocument(currentUser)).slug;
       window.location.replace(`/${mySlug}`);
     } else {
@@ -124,8 +124,8 @@ async function render() {
   if (currentUser && !isOwnProfile) {
     const me = await getUserById(currentUser.uid);
     const who = escapeHtml(currentUser.email || currentUser.displayName || "another account");
-    if (me?.slug) {
-      otherProfileBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">You're signed in as ${who}. This is someone else's page. <a href="/${escapeHtml(me.slug)}">Open your profile</a> to make changes.</p>`;
+    if (me?.slugF) {
+      otherProfileBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">You're signed in as ${who}. This is someone else's page. <a href="/${escapeHtml(me.slugF)}">Open your profile</a> to make changes.</p>`;
     } else {
       otherProfileBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">You're signed in as ${who}, but this profile is for a different account. Go to the <a href="/">home page</a> to find yours.</p>`;
     }
@@ -133,11 +133,11 @@ async function render() {
 
   const references = await getReferences(profileUser.id);
 
-  const publicSlug = profileUser.slug || "";
-  const bio = profileUser.bio || "";
-  const portfolio = profileUser.portfolio || "";
-  const github = profileUser.github || "";
-  const linkedin = profileUser.linkedin || "";
+  const publicSlug = profileUser.slugF || "";
+  const bio = profileUser.bioF || "";
+  const portfolio = profileUser.portfolioF || "";
+  const github = profileUser.githubF || "";
+  const linkedin = profileUser.linkedinF || "";
 
   const editSection = isOwnProfile
     ? `
@@ -150,7 +150,7 @@ async function render() {
         <div class="stack" style="display: grid; gap: 10px;">
           <label class="muted" style="font-size: 0.95rem;">
             Your name
-            <input id="nameInput" type="text" value="${escapeHtml(profileUser.name)}" maxlength="120" style="margin-top: 6px; width: 100%; box-sizing: border-box;" />
+            <input id="nameInput" type="text" value="${escapeHtml(profileUser.nameF)}" maxlength="120" style="margin-top: 6px; width: 100%; box-sizing: border-box;" />
           </label>
           <button type="button" id="updateNameBtn" class="button button-secondary">Save name</button>
         </div>
@@ -194,21 +194,21 @@ async function render() {
 
   const refList = references
     .map((ref) => {
-      const year = ref.createdAt?.toDate?.().getFullYear?.() || new Date().getFullYear();
+      const year = ref.createdAtF?.toDate?.().getFullYear?.() || new Date().getFullYear();
       if (isOwnProfile) {
         return `
     <div class="reference-item" data-ref-id="${escapeHtml(ref.id)}" style="position: relative;">
-      <p class="reference-name">${escapeHtml(ref.fromUserName || "Anonymous")}</p>
-      <p class="reference-position">${escapeHtml(ref.position)}</p>
+      <p class="reference-name">${escapeHtml(ref.fromUserNameF || "Anonymous")}</p>
+      <p class="reference-position">${escapeHtml(ref.positionF)}</p>
       <p class="reference-confirmation" style="margin-top: 10px;">✔ Confirmed ${year}</p>
       <div class="profile-edit-only" hidden style="margin-top: 14px;">
         <label class="muted" style="font-size: 0.85rem; display: block;">
           Reference name
-          <input type="text" class="ref-name-input" value="${escapeHtml(ref.fromUserName || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
+          <input type="text" class="ref-name-input" value="${escapeHtml(ref.fromUserNameF || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
         </label>
         <label class="muted" style="font-size: 0.85rem; display: block; margin-top: 10px;">
           Role or how you know them
-          <input type="text" class="ref-position-input" value="${escapeHtml(ref.position || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
+          <input type="text" class="ref-position-input" value="${escapeHtml(ref.positionF || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
         </label>
         <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
           <button type="button" class="ref-save-btn button button-secondary">Save reference</button>
@@ -220,17 +220,17 @@ async function render() {
       }
       return `
     <div class="reference-item" style="position: relative;">
-      <p class="reference-name">${escapeHtml(ref.fromUserName || "Anonymous")}</p>
-      <p class="reference-position">${escapeHtml(ref.position)}</p>
+      <p class="reference-name">${escapeHtml(ref.fromUserNameF || "Anonymous")}</p>
+      <p class="reference-position">${escapeHtml(ref.positionF)}</p>
       <p class="reference-confirmation">✔ Confirmed ${year}</p>
     </div>
   `;
     })
     .join("");
 
-  const portfolioHref = normalizeExternalUrl(profileUser.portfolio);
-  const githubHref = normalizeExternalUrl(profileUser.github);
-  const linkedinHref = normalizeExternalUrl(profileUser.linkedin);
+  const portfolioHref = normalizeExternalUrl(profileUser.portfolioF);
+  const githubHref = normalizeExternalUrl(profileUser.githubF);
+  const linkedinHref = normalizeExternalUrl(profileUser.linkedinF);
 
   const linksHTML =
     portfolioHref || githubHref || linkedinHref
@@ -248,7 +248,7 @@ async function render() {
     ${otherProfileBanner}
     <div class="profile-public-view">
       <header class="profile-headline">
-        <h1 id="profileNameHeading" class="profile-title">${escapeHtml(profileUser.name)}</h1>
+        <h1 id="profileNameHeading" class="profile-title">${escapeHtml(profileUser.nameF)}</h1>
         ${bio ? `<p id="profileBioHeading" class="profile-bio">${escapeHtml(bio)}</p>` : ""}
         ${linksHTML}
       </header>
@@ -294,7 +294,7 @@ async function render() {
         btn.disabled = true;
         btn.textContent = "Saving...";
         await updateUserName(currentUser.uid, newName);
-        profileUser.name = newName;
+        profileUser.nameF = newName;
         const heading = document.getElementById("profileNameHeading");
         if (heading) heading.textContent = newName;
         setEditStatus("Name updated.");
@@ -318,7 +318,7 @@ async function render() {
         btn.disabled = true;
         btn.textContent = "Saving...";
         await updateUserBio(currentUser.uid, newBio);
-        profileUser.bio = newBio;
+        profileUser.bioF = newBio;
         const bioEl = document.getElementById("profileBioHeading");
         if (newBio) {
           if (bioEl) {
@@ -361,7 +361,7 @@ async function render() {
         btn.disabled = true;
         btn.textContent = "Saving...";
         await updateUserSlug(currentUser.uid, newSlug);
-        profileUser.slug = newSlug;
+        profileUser.slugF = newSlug;
         setEditStatus("Link updated. Bookmark the new address if you changed it.");
         btn.textContent = "Saved!";
         const pathSlug = getSlug();
@@ -398,9 +398,9 @@ async function render() {
           github: normalizedGithub,
           linkedin: normalizedLinkedin,
         });
-        profileUser.portfolio = normalizedPortfolio;
-        profileUser.github = normalizedGithub;
-        profileUser.linkedin = normalizedLinkedin;
+        profileUser.portfolioF = normalizedPortfolio;
+        profileUser.githubF = normalizedGithub;
+        profileUser.linkedinF = normalizedLinkedin;
         document.getElementById("portfolioInput").value = normalizedPortfolio;
         document.getElementById("githubInput").value = normalizedGithub;
         document.getElementById("linkedinInput").value = normalizedLinkedin;

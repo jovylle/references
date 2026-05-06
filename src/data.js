@@ -44,13 +44,13 @@ export function getFriendlyErrorMessage(error) {
 }
 
 export async function ensureUserDocument(user) {
-  const existing = await getDoc(doc(db, "users", user.uid));
-  const existingSlug = existing.exists() ? existing.data().slug : "";
+  const existing = await getDoc(doc(db, "usersC", user.uid));
+  const existingSlug = existing.exists() ? existing.data().slugF : "";
   const baseSlug = slugify(user.displayName || user.email || "profile") || "profile";
   let slug = existingSlug || baseSlug;
 
   if (!existingSlug) {
-    const slugCheck = await getDocs(query(collection(db, "users"), where("slug", "==", baseSlug), limit(1)));
+    const slugCheck = await getDocs(query(collection(db, "usersC"), where("slugF", "==", baseSlug), limit(1)));
     if (!slugCheck.empty && slugCheck.docs[0].id !== user.uid) {
       slug = `${baseSlug}-${user.uid.slice(0, 6)}`;
     }
@@ -58,23 +58,23 @@ export async function ensureUserDocument(user) {
 
   if (existing.exists()) {
     // Existing user: only sync auth-derived fields. Never touch user-edited fields like name.
-    await updateDoc(doc(db, "users", user.uid), {
-      slug,
-      email: user.email || "",
-      updatedAt: serverTimestamp(),
+    await updateDoc(doc(db, "usersC", user.uid), {
+      slugF: slug,
+      emailF: user.email || "",
+      updatedAtF: serverTimestamp(),
     });
   } else {
     // New user: create the full document seeded from the Google profile.
-    await setDoc(doc(db, "users", user.uid), {
-      name: user.displayName || user.email?.split("@")[0] || "Unknown",
-      bio: "",
-      photoURL: user.photoURL || "",
-      portfolio: "",
-      github: "",
-      linkedin: "",
-      slug,
-      email: user.email || "",
-      updatedAt: serverTimestamp(),
+    await setDoc(doc(db, "usersC", user.uid), {
+      nameF: user.displayName || user.email?.split("@")[0] || "Unknown",
+      bioF: "",
+      photoURLF: user.photoURL || "",
+      portfolioF: "",
+      githubF: "",
+      linkedinF: "",
+      slugF: slug,
+      emailF: user.email || "",
+      updatedAtF: serverTimestamp(),
     });
   }
   return { slug };
@@ -82,51 +82,51 @@ export async function ensureUserDocument(user) {
 
 export async function updateUserLinks(userId, links) {
   const { portfolio, github, linkedin } = links;
-  await updateDoc(doc(db, "users", userId), {
-    portfolio: portfolio || "",
-    github: github || "",
-    linkedin: linkedin || "",
+  await updateDoc(doc(db, "usersC", userId), {
+    portfolioF: portfolio || "",
+    githubF: github || "",
+    linkedinF: linkedin || "",
   });
 }
 
 export async function updateUserName(userId, newName) {
   if (!newName?.trim()) throw new Error("Name cannot be empty.");
-  await updateDoc(doc(db, "users", userId), { name: newName.trim() });
+  await updateDoc(doc(db, "usersC", userId), { nameF: newName.trim() });
 }
 
 export async function updateUserBio(userId, newBio) {
-  await updateDoc(doc(db, "users", userId), { bio: newBio.trim() });
+  await updateDoc(doc(db, "usersC", userId), { bioF: newBio.trim() });
 }
 
 export async function updateReference(referenceId, { position, fromUserName } = {}) {
   const payload = {};
   if (position !== undefined) {
     if (!position?.trim()) throw new Error("Position cannot be empty.");
-    payload.position = position.trim();
+    payload.positionF = position.trim();
   }
   if (fromUserName !== undefined) {
     if (!fromUserName?.trim()) throw new Error("Name cannot be empty.");
-    payload.fromUserName = fromUserName.trim();
+    payload.fromUserNameF = fromUserName.trim();
   }
   if (Object.keys(payload).length === 0) {
     throw new Error("Nothing to update.");
   }
-  await updateDoc(doc(db, "references", referenceId), payload);
+  await updateDoc(doc(db, "referencesC", referenceId), payload);
 }
 
 export async function deleteReference(referenceId) {
-  await updateDoc(doc(db, "references", referenceId), { status: "hidden" });
+  await updateDoc(doc(db, "referencesC", referenceId), { statusF: "hidden" });
 }
 
 export async function getUserById(userId) {
-  const snap = await getDoc(doc(db, "users", userId));
+  const snap = await getDoc(doc(db, "usersC", userId));
   if (!snap.exists()) return null;
   // Document id must win: stored fields named `id` would otherwise break auth checks.
   return { ...snap.data(), id: snap.id };
 }
 
 export async function getUserBySlug(slug) {
-  const q = query(collection(db, "users"), where("slug", "==", slug), limit(1));
+  const q = query(collection(db, "usersC"), where("slugF", "==", slug), limit(1));
   const snap = await getDocs(q);
   if (snap.empty) return null;
   const docSnap = snap.docs[0];
@@ -135,14 +135,14 @@ export async function getUserBySlug(slug) {
 
 export async function createRequest(user, toName, position) {
   const token = generateToken();
-  const ref = await addDoc(collection(db, "requests"), {
-    fromUserId: user.uid,
-    fromUserEmail: user.email || "",
-    toName,
-    position,
-    token,
-    status: "pending",
-    createdAt: serverTimestamp(),
+  const ref = await addDoc(collection(db, "requestsC"), {
+    fromUserIdF: user.uid,
+    fromUserEmailF: user.email || "",
+    toNameF: toName,
+    positionF: position,
+    tokenF: token,
+    statusF: "pending",
+    createdAtF: serverTimestamp(),
   });
 
   return {
@@ -158,9 +158,9 @@ export async function createRequest(user, toName, position) {
  */
 export async function getRequestByToken(token, options = {}) {
   const { publicPreview = false } = options;
-  const parts = [collection(db, "requests"), where("token", "==", token)];
+  const parts = [collection(db, "requestsC"), where("tokenF", "==", token)];
   if (publicPreview) {
-    parts.push(where("status", "==", "pending"));
+    parts.push(where("statusF", "==", "pending"));
   }
   parts.push(limit(1));
   const q = query(...parts);
@@ -172,7 +172,7 @@ export async function getRequestByToken(token, options = {}) {
 
 export async function approveRequest(requestRecord, currentUser) {
   const requestRef = requestRecord.ref;
-  const referenceRef = doc(db, "references", requestRecord.id);
+  const referenceRef = doc(db, "referencesC", requestRecord.id);
 
   await runTransaction(db, async (tx) => {
     const latestRequestSnap = await tx.get(requestRef);
@@ -180,39 +180,39 @@ export async function approveRequest(requestRecord, currentUser) {
     const existingReferenceSnap = await tx.get(referenceRef);
 
     const latestData = latestRequestSnap.data();
-    if (latestData.status !== "pending") {
+    if (latestData.statusF !== "pending") {
       // Idempotent success path: request was already confirmed to this reference.
-      if (latestData.referenceId === referenceRef.id && existingReferenceSnap.exists()) return;
+      if (latestData.referenceIdF === referenceRef.id && existingReferenceSnap.exists()) return;
       throw new Error("This request is already confirmed.");
     }
 
     tx.set(referenceRef, {
-      requestId: requestRecord.id,
-      fromUserId: currentUser.uid,
-      fromUserEmail: currentUser.email || "",
-      fromUserName: currentUser.displayName || currentUser.email?.split("@")[0] || "Unknown",
-      toUserId: latestData.fromUserId,
-      toUserEmail: latestData.fromUserEmail || "",
-      position: latestData.position,
-      status: "confirmed",
-      createdAt: serverTimestamp(),
+      requestIdF: requestRecord.id,
+      fromUserIdF: currentUser.uid,
+      fromUserEmailF: currentUser.email || "",
+      fromUserNameF: currentUser.displayName || currentUser.email?.split("@")[0] || "Unknown",
+      toUserIdF: latestData.fromUserIdF,
+      toUserEmailF: latestData.fromUserEmailF || "",
+      positionF: latestData.positionF,
+      statusF: "confirmed",
+      createdAtF: serverTimestamp(),
     });
 
     tx.update(requestRef, {
-      status: "confirmed",
-      confirmedBy: currentUser.uid,
-      confirmedAt: serverTimestamp(),
-      referenceId: referenceRef.id,
-      toUserId: currentUser.uid,
+      statusF: "confirmed",
+      confirmedByF: currentUser.uid,
+      confirmedAtF: serverTimestamp(),
+      referenceIdF: referenceRef.id,
+      toUserIdF: currentUser.uid,
     });
   });
 }
 
 export async function getReferences(userId) {
   const q = query(
-    collection(db, "references"),
-    where("toUserId", "==", userId),
-    where("status", "==", "confirmed"),
+    collection(db, "referencesC"),
+    where("toUserIdF", "==", userId),
+    where("statusF", "==", "confirmed"),
   );
 
   const snap = await getDocs(q);
@@ -223,12 +223,12 @@ export async function updateUserSlug(userId, newSlug) {
   const slug = slugify(newSlug);
   if (!slug) throw new Error("Invalid slug.");
 
-  const existing = await getDocs(query(collection(db, "users"), where("slug", "==", slug), limit(1)));
+  const existing = await getDocs(query(collection(db, "usersC"), where("slugF", "==", slug), limit(1)));
   if (!existing.empty && existing.docs[0].id !== userId) {
     throw new Error("Slug already taken. Try another.");
   }
 
-  await updateDoc(doc(db, "users", userId), { slug });
+  await updateDoc(doc(db, "usersC", userId), { slugF: slug });
 }
 
 export async function signOutIfNeeded() {

@@ -52,8 +52,8 @@ async function renderSignedOutRequest() {
   const data = requestRecord.data();
   requestState.innerHTML = `
     <div class="stack">
-      <p class="reference-name">${escapeHtml(data.toName)}</p>
-      <p class="reference-position">${escapeHtml(data.position)}</p>
+      <p class="reference-name">${escapeHtml(data.toNameF)}</p>
+      <p class="reference-position">${escapeHtml(data.positionF)}</p>
       <p class="muted" style="margin-top: 16px;">Sign in with Google above to confirm. You can’t complete this step until you’re signed in.</p>
     </div>
   `;
@@ -75,11 +75,11 @@ async function renderRequest(user) {
 
   const data = requestRecord.data();
 
-  if (data.status === "confirmed") {
+  if (data.statusF === "confirmed") {
     requestState.innerHTML = `
       <div class="stack">
-        <p class="reference-name">${escapeHtml(data.toName)}</p>
-        <p class="reference-position">${escapeHtml(data.position)}</p>
+        <p class="reference-name">${escapeHtml(data.toNameF)}</p>
+        <p class="reference-position">${escapeHtml(data.positionF)}</p>
         <p class="reference-confirmation">✔ Already confirmed</p>
         <p class="muted" style="margin-top: 12px;">You can close this page.</p>
       </div>
@@ -89,8 +89,8 @@ async function renderRequest(user) {
 
   requestState.innerHTML = `
     <div class="stack">
-      <p class="reference-name">${escapeHtml(data.toName)}</p>
-      <p class="reference-position">${escapeHtml(data.position)}</p>
+      <p class="reference-name">${escapeHtml(data.toNameF)}</p>
+      <p class="reference-position">${escapeHtml(data.positionF)}</p>
       <p class="muted">Tap confirm if this is what you agreed to.</p>
       <button id="approveBtn" class="button button-primary">Confirm</button>
     </div>
@@ -104,8 +104,8 @@ async function renderRequest(user) {
       await approveRequest(requestRecord, user);
       requestState.innerHTML = `
         <div class="stack">
-          <p class="reference-name">${escapeHtml(data.toName)}</p>
-          <p class="reference-position">${escapeHtml(data.position)}</p>
+          <p class="reference-name">${escapeHtml(data.toNameF)}</p>
+          <p class="reference-position">${escapeHtml(data.positionF)}</p>
           <p class="reference-confirmation">✔ Confirmed</p>
         </div>
       `;
@@ -114,7 +114,7 @@ async function renderRequest(user) {
 
       const getFromUser = async () => {
         const { getDoc, doc, db } = await import("./firebase.js");
-        const snap = await getDoc(doc(db, "users", data.fromUserId));
+        const snap = await getDoc(doc(db, "usersC", data.fromUserIdF));
         return snap.exists() ? snap.data() : null;
       };
 
@@ -136,16 +136,16 @@ async function renderRequest(user) {
           submitBtn.textContent = "Adding...";
           const { addDoc, collection, serverTimestamp } = await import("./firebase.js");
           const { db } = await import("./firebase.js");
-          await addDoc(collection(db, "references"), {
+          await addDoc(collection(db, "referencesC"), {
             // Reciprocal add should show on the current user's profile.
-            fromUserId: data.fromUserId,
-            fromUserEmail: data.fromUserEmail || "",
-            fromUserName: fromUser?.name || data.fromUserName || data.fromUserEmail || "Unknown",
-            toUserId: user.uid,
-            toUserEmail: user.email || "",
-            position: reciprocalPosition,
-            status: "confirmed",
-            createdAt: serverTimestamp(),
+            fromUserIdF: data.fromUserIdF,
+            fromUserEmailF: data.fromUserEmailF || "",
+            fromUserNameF: fromUser?.nameF || data.fromUserNameF || data.fromUserEmailF || "Unknown",
+            toUserIdF: user.uid,
+            toUserEmailF: user.email || "",
+            positionF: reciprocalPosition,
+            statusF: "confirmed",
+            createdAtF: serverTimestamp(),
           });
           authStatus.textContent = "Added to your profile.";
           submitBtn.textContent = "Added!";
