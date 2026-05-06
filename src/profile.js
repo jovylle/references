@@ -99,7 +99,19 @@ async function render() {
     }
   }
 
-  const isOwnProfile = currentUser && currentUser.uid === profileUser.id;
+  const isOwnProfile = Boolean(currentUser && currentUser.uid === profileUser.id);
+
+  let otherProfileBanner = "";
+  if (currentUser && !isOwnProfile) {
+    const me = await getUserById(currentUser.uid);
+    const who = escapeHtml(currentUser.email || currentUser.displayName || "another account");
+    if (me?.slug) {
+      otherProfileBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">You're signed in as ${who}. This page is not your profile. <a href="/${escapeHtml(me.slug)}">Open your profile</a> to edit your details.</p>`;
+    } else {
+      otherProfileBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">You're signed in as ${who}, but this profile belongs to another account. Use the <a href="/">home page</a> if you need your profile link.</p>`;
+    }
+  }
+
   const references = await getReferences(profileUser.id);
 
   const publicSlug = profileUser.slug || "";
@@ -191,6 +203,7 @@ async function render() {
       : "";
 
   profileState.innerHTML = `
+    ${otherProfileBanner}
     ${editSection}
     <div>
       <h1>${escapeHtml(profileUser.name)}</h1>
