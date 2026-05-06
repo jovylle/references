@@ -1,5 +1,7 @@
 /confirm   /confirm.html  200
 /profile   /profile.html  200
 /about     /about.html    200
+/privacy   /privacy.html  200
 /          /index.html    200
-/:slug     /profile.html?slug=:slug  200
+# Pretty URLs: browser stays /:slug; profile.js reads the path segment (no ?slug= needed).
+/:slug     /profile.html  200

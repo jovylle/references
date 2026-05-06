@@ -26,8 +26,12 @@ const RESERVED_PATHS = new Set([
 
 function getSlug() {
   const params = new URLSearchParams(window.location.search);
-  const slug = params.get("slug");
-  if (slug) return slug.trim().toLowerCase();
+  const slugParam = params.get("slug");
+  if (slugParam) {
+    const fromQuery = slugParam.trim().toLowerCase();
+    // Hosting may rewrite /profile → profile.html?slug=profile; that is not a user slug.
+    if (fromQuery && !RESERVED_PATHS.has(fromQuery)) return fromQuery;
+  }
 
   const segments = window.location.pathname.split("/").filter(Boolean);
   const first = (segments[0] || "").toLowerCase();
