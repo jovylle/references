@@ -46,6 +46,13 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
+function normalizeExternalUrl(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `https://${raw}`;
+}
+
 function getProfileMount() {
   return document.getElementById("profileState");
 }
@@ -215,12 +222,16 @@ async function render() {
     })
     .join("");
 
+  const portfolioHref = normalizeExternalUrl(profileUser.portfolio);
+  const githubHref = normalizeExternalUrl(profileUser.github);
+  const linkedinHref = normalizeExternalUrl(profileUser.linkedin);
+
   const linksHTML =
-    profileUser.portfolio || profileUser.github || profileUser.linkedin
+    portfolioHref || githubHref || linkedinHref
       ? `<div style="display: flex; gap: 16px; margin: 16px 0; flex-wrap: wrap;">
-        ${profileUser.portfolio ? `<a href="${escapeHtml(profileUser.portfolio)}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">Portfolio ↗</a>` : ""}
-        ${profileUser.github ? `<a href="${escapeHtml(profileUser.github)}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">GitHub ↗</a>` : ""}
-        ${profileUser.linkedin ? `<a href="${escapeHtml(profileUser.linkedin)}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">LinkedIn ↗</a>` : ""}
+        ${portfolioHref ? `<a href="${escapeHtml(portfolioHref)}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">Portfolio ↗</a>` : ""}
+        ${githubHref ? `<a href="${escapeHtml(githubHref)}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">GitHub ↗</a>` : ""}
+        ${linkedinHref ? `<a href="${escapeHtml(linkedinHref)}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">LinkedIn ↗</a>` : ""}
       </div>`
       : "";
 
@@ -228,7 +239,7 @@ async function render() {
     ${otherProfileBanner}
     ${editSection}
     <div>
-      <h1>${escapeHtml(profileUser.name)}</h1>
+      <h1 id="profileNameHeading">${escapeHtml(profileUser.name)}</h1>
       ${linksHTML}
       <h2 style="margin-top: 32px; font-size: 1.2rem;">References</h2>
       ${references.length > 0 ? `<div class="stack" style="gap: 16px;">${refList}</div>` : '<p class="muted">No confirmed references yet.</p>'}
@@ -264,6 +275,8 @@ async function render() {
         btn.textContent = "Saving...";
         await updateUserName(currentUser.uid, newName);
         profileUser.name = newName;
+        const heading = document.getElementById("profileNameHeading");
+        if (heading) heading.textContent = newName;
         setEditStatus("Name updated.");
         btn.textContent = "Saved!";
         setTimeout(() => {
@@ -314,20 +327,27 @@ async function render() {
       const portfolioVal = document.getElementById("portfolioInput").value.trim();
       const githubVal = document.getElementById("githubInput").value.trim();
       const linkedinVal = document.getElementById("linkedinInput").value.trim();
+      const normalizedPortfolio = normalizeExternalUrl(portfolioVal);
+      const normalizedGithub = normalizeExternalUrl(githubVal);
+      const normalizedLinkedin = normalizeExternalUrl(linkedinVal);
 
       try {
         btn.disabled = true;
         btn.textContent = "Saving...";
         await updateUserLinks(currentUser.uid, {
-          portfolio: portfolioVal,
-          github: githubVal,
-          linkedin: linkedinVal,
+          portfolio: normalizedPortfolio,
+          github: normalizedGithub,
+          linkedin: normalizedLinkedin,
         });
-        profileUser.portfolio = portfolioVal;
-        profileUser.github = githubVal;
-        profileUser.linkedin = linkedinVal;
+        profileUser.portfolio = normalizedPortfolio;
+        profileUser.github = normalizedGithub;
+        profileUser.linkedin = normalizedLinkedin;
+        document.getElementById("portfolioInput").value = normalizedPortfolio;
+        document.getElementById("githubInput").value = normalizedGithub;
+        document.getElementById("linkedinInput").value = normalizedLinkedin;
         setEditStatus("Links updated.");
         btn.textContent = "Saved!";
+        await render();
         setTimeout(() => {
           btn.textContent = "Save links";
           btn.disabled = false;
