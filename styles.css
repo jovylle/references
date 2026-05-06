@@ -188,13 +188,15 @@ input:focus {
 }
 
 .reference-item {
-  padding: 18px 0;
-  border-top: 1px solid rgba(58, 47, 37, 0.12);
+  padding: 18px 20px;
+  border: 1px solid rgba(58, 47, 37, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.56);
 }
 
 .reference-item:first-child {
-  border-top: 0;
-  padding-top: 0;
+  border-top: 1px solid rgba(58, 47, 37, 0.12);
+  padding-top: 18px;
 }
 
 .reference-name {
@@ -212,6 +214,52 @@ input:focus {
   margin: 8px 0 0;
   color: var(--success);
   font-weight: 700;
+}
+
+.profile-public-view {
+  display: grid;
+  gap: 12px;
+}
+
+.profile-title {
+  margin-top: 4px;
+}
+
+.profile-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 2px 0 10px;
+}
+
+.profile-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 75, 95, 0.18);
+  background: rgba(220, 238, 243, 0.45);
+  color: var(--accent-strong);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.profile-link-chip:hover {
+  background: rgba(220, 238, 243, 0.75);
+}
+
+.references-heading {
+  margin: 12px 0 6px;
+  font-size: 1.2rem;
+}
+
+.profile-reference-list {
+  margin-top: 4px;
+}
+
+.profile-empty-state {
+  margin-top: 2px;
 }
 
 .hidden {

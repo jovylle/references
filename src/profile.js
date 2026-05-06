@@ -228,21 +228,21 @@ async function render() {
 
   const linksHTML =
     portfolioHref || githubHref || linkedinHref
-      ? `<div style="display: flex; gap: 16px; margin: 16px 0; flex-wrap: wrap;">
-        ${portfolioHref ? `<a href="${escapeHtml(portfolioHref)}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">Portfolio ↗</a>` : ""}
-        ${githubHref ? `<a href="${escapeHtml(githubHref)}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">GitHub ↗</a>` : ""}
-        ${linkedinHref ? `<a href="${escapeHtml(linkedinHref)}" target="_blank" rel="noreferrer" style="color: var(--text); text-decoration: none; font-weight: 500;">LinkedIn ↗</a>` : ""}
+      ? `<div class="profile-links">
+        ${portfolioHref ? `<a href="${escapeHtml(portfolioHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">Portfolio <span aria-hidden="true">↗</span></a>` : ""}
+        ${githubHref ? `<a href="${escapeHtml(githubHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">GitHub <span aria-hidden="true">↗</span></a>` : ""}
+        ${linkedinHref ? `<a href="${escapeHtml(linkedinHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">LinkedIn <span aria-hidden="true">↗</span></a>` : ""}
       </div>`
       : "";
 
   mount.innerHTML = `
     ${otherProfileBanner}
     ${editSection}
-    <div>
-      <h1 id="profileNameHeading">${escapeHtml(profileUser.name)}</h1>
+    <div class="profile-public-view">
+      <h1 id="profileNameHeading" class="profile-title">${escapeHtml(profileUser.name)}</h1>
       ${linksHTML}
-      <h2 style="margin-top: 32px; font-size: 1.2rem;">References</h2>
-      ${references.length > 0 ? `<div class="stack" style="gap: 16px;">${refList}</div>` : '<p class="muted">No confirmed references yet.</p>'}
+      <h2 class="references-heading">References</h2>
+      ${references.length > 0 ? `<div class="stack profile-reference-list" style="gap: 16px;">${refList}</div>` : '<p class="muted profile-empty-state">No confirmed references yet.</p>'}
     </div>
   `;
 
