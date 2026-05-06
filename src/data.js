@@ -140,8 +140,18 @@ export async function createRequest(user, toName, position) {
   };
 }
 
-export async function getRequestByToken(token) {
-  const q = query(collection(db, "requests"), where("token", "==", token), limit(1));
+/**
+ * @param {string} token
+ * @param {{ publicPreview?: boolean }} [options] If true, only pending requests (required for unauthenticated reads per security rules).
+ */
+export async function getRequestByToken(token, options = {}) {
+  const { publicPreview = false } = options;
+  const parts = [collection(db, "requests"), where("token", "==", token)];
+  if (publicPreview) {
+    parts.push(where("status", "==", "pending"));
+  }
+  parts.push(limit(1));
+  const q = query(...parts);
   const snap = await getDocs(q);
   if (snap.empty) return null;
   const docSnap = snap.docs[0];

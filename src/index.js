@@ -20,25 +20,26 @@ const requestHint = document.getElementById("requestHint");
 const createdLink = document.getElementById("createdLink");
 const createdLinkValue = document.getElementById("createdLinkValue");
 const infoSection = document.getElementById("infoSection");
-const homeFooterProfileLink = document.getElementById("homeFooterProfileLink");
-const homeProfileUrlLine = document.getElementById("homeProfileUrlLine");
-const homeProfileUrlAnchor = document.getElementById("homeProfileUrlAnchor");
 
 function setHomeProfileLinks(slug) {
   const path = slug ? `/${slug}` : "/profile.html";
   const label = slug ? path : "My profile";
 
-  if (homeFooterProfileLink) {
-    homeFooterProfileLink.href = path;
-    homeFooterProfileLink.textContent = label;
+  const footer = document.getElementById("homeFooterProfileLink");
+  const anchor = document.getElementById("homeProfileUrlAnchor");
+  const line = document.getElementById("homeProfileUrlLine");
+
+  if (footer) {
+    footer.href = path;
+    footer.textContent = label;
   }
-  if (homeProfileUrlAnchor) {
-    homeProfileUrlAnchor.href = path;
-    homeProfileUrlAnchor.textContent = label;
+  if (anchor) {
+    anchor.href = path;
+    anchor.textContent = label;
   }
-  if (homeProfileUrlLine) {
-    if (slug) homeProfileUrlLine.classList.remove("hidden");
-    else homeProfileUrlLine.classList.add("hidden");
+  if (line) {
+    if (slug) line.classList.remove("hidden");
+    else line.classList.add("hidden");
   }
 }
 
@@ -76,8 +77,11 @@ signInBtn.addEventListener("click", async () => {
 signOutBtn.addEventListener("click", async () => {
   try {
     await signOutIfNeeded();
-    createdLink.classList.add("hidden");
-    createdLinkValue.textContent = "";
+    if (createdLink) createdLink.classList.add("hidden");
+    if (createdLinkValue) {
+      createdLinkValue.textContent = "";
+      createdLinkValue.setAttribute("href", "#");
+    }
   } catch (error) {
     authStatus.textContent = getFriendlyErrorMessage(error);
   }
@@ -96,9 +100,11 @@ requestForm.addEventListener("submit", async (event) => {
     submitBtn.disabled = true;
     submitBtn.textContent = "Generating link...";
     const result = await createRequest(user, toName, position);
-    createdLink.classList.remove("hidden");
-    createdLinkValue.textContent = result.link;
-    createdLinkValue.href = result.link;
+    if (createdLink) createdLink.classList.remove("hidden");
+    if (createdLinkValue) {
+      createdLinkValue.textContent = result.link;
+      createdLinkValue.href = result.link;
+    }
     submitBtn.textContent = "Link generated!";
     setTimeout(() => {
       submitBtn.textContent = "Generate link";

@@ -10,29 +10,41 @@ const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
 const authStatus = document.getElementById("authStatus");
 const requestState = document.getElementById("requestState");
-const preSignInRequest = document.getElementById("preSignInRequest");
 
 function getToken() {
   return new URLSearchParams(window.location.search).get("token");
 }
 
-async function loadRequestPreview() {
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Name + position only; no confirm until signed in. */
+async function renderSignedOutRequest() {
   const token = getToken();
   if (!token) {
     requestState.innerHTML = '<p class="muted">Missing token.</p>';
     return;
   }
 
-  const requestRecord = await getRequestByToken(token);
+  const requestRecord = await getRequestByToken(token, { publicPreview: true });
   if (!requestRecord) {
-    requestState.innerHTML = '<p class="muted">Request not found.</p>';
+    requestState.innerHTML =
+      '<p class="muted">This link is invalid, expired, or already confirmed. If you already confirmed, you can close this page.</p>';
     return;
   }
 
   const data = requestRecord.data();
-  document.getElementById("preName").textContent = data.toName;
-  document.getElementById("prePosition").textContent = data.position;
-  preSignInRequest.classList.remove("hidden");
+  requestState.innerHTML = `
+    <div class="stack">
+      <p class="reference-name">${escapeHtml(data.toName)}</p>
+      <p class="reference-position">${escapeHtml(data.position)}</p>
+      <p class="muted" style="margin-top: 16px;">Sign in with Google above to confirm. You can’t complete this step until you’re signed in.</p>
+    </div>
+  `;
 }
 
 async function renderRequest(user) {
@@ -49,10 +61,23 @@ async function renderRequest(user) {
   }
 
   const data = requestRecord.data();
+
+  if (data.status === "confirmed") {
+    requestState.innerHTML = `
+      <div class="stack">
+        <p class="reference-name">${escapeHtml(data.toName)}</p>
+        <p class="reference-position">${escapeHtml(data.position)}</p>
+        <p class="reference-confirmation">✔ Already confirmed</p>
+        <p class="muted" style="margin-top: 12px;">You can close this page.</p>
+      </div>
+    `;
+    return;
+  }
+
   requestState.innerHTML = `
     <div class="stack">
-      <p class="reference-name">${data.toName}</p>
-      <p class="reference-position">${data.position}</p>
+      <p class="reference-name">${escapeHtml(data.toName)}</p>
+      <p class="reference-position">${escapeHtml(data.position)}</p>
       <p class="muted">Tap confirm if this is what you agreed to.</p>
       <button id="approveBtn" class="button button-primary">Confirm</button>
     </div>
@@ -66,8 +91,8 @@ async function renderRequest(user) {
       await approveRequest(requestRecord, user);
       requestState.innerHTML = `
         <div class="stack">
-          <p class="reference-name">${data.toName}</p>
-          <p class="reference-position">${data.position}</p>
+          <p class="reference-name">${escapeHtml(data.toName)}</p>
+          <p class="reference-position">${escapeHtml(data.position)}</p>
           <p class="reference-confirmation">✔ Confirmed</p>
         </div>
       `;
@@ -152,14 +177,12 @@ signOutBtn.addEventListener("click", async () => {
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     authStatus.textContent = "Not signed in.";
-    requestState.innerHTML = '<p class="muted">Sign in to confirm.</p>';
     signInBtn.classList.remove("hidden");
     signOutBtn.classList.add("hidden");
     try {
-      await loadRequestPreview();
+      await renderSignedOutRequest();
     } catch (error) {
       console.error(error);
-      preSignInRequest.classList.add("hidden");
       requestState.innerHTML = `<p class="muted">Could not load request.</p>`;
     }
     return;
@@ -167,7 +190,6 @@ onAuthStateChanged(auth, async (user) => {
 
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
-  preSignInRequest.classList.add("hidden");
   authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
 
   try {
