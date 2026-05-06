@@ -56,16 +56,19 @@ export async function ensureUserDocument(user) {
     }
   }
 
+  const isNew = !existing.exists();
   await setDoc(
     doc(db, "users", user.uid),
     {
-      name: user.displayName || user.email?.split("@")[0] || "Unknown",
+      ...(isNew && {
+        name: user.displayName || user.email?.split("@")[0] || "Unknown",
+        photoURL: user.photoURL || "",
+        portfolio: "",
+        github: "",
+        linkedin: "",
+      }),
       slug,
       email: user.email || "",
-      photoURL: user.photoURL || "",
-      portfolio: "",
-      github: "",
-      linkedin: "",
       updatedAt: serverTimestamp(),
     },
     { merge: true },
