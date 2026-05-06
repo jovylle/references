@@ -66,15 +66,11 @@ async function route() {
 
   if (!slug) {
     if (currentUser) {
-      await ensureUserDocument(currentUser);
-      const me = await getUserById(currentUser.uid);
-      if (me?.slug) {
-        window.location.replace(`/${me.slug}`);
-        return;
-      }
+      const { slug: mySlug } = await ensureUserDocument(currentUser);
+      window.location.replace(`/${mySlug}`);
+    } else {
+      window.location.replace('/');
     }
-    mount.innerHTML =
-      '<p class="muted">Use your profile link, or sign in on the <a href="/">home page</a>—we’ll send you to your profile if you already have one.</p>';
     return;
   }
 
