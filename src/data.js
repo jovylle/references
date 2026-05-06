@@ -56,23 +56,26 @@ export async function ensureUserDocument(user) {
     }
   }
 
-  const isNew = !existing.exists();
-  await setDoc(
-    doc(db, "users", user.uid),
-    {
-      ...(isNew && {
-        name: user.displayName || user.email?.split("@")[0] || "Unknown",
-        photoURL: user.photoURL || "",
-        portfolio: "",
-        github: "",
-        linkedin: "",
-      }),
+  if (existing.exists()) {
+    // Existing user: only sync auth-derived fields. Never touch user-edited fields like name.
+    await updateDoc(doc(db, "users", user.uid), {
       slug,
       email: user.email || "",
       updatedAt: serverTimestamp(),
-    },
-    { merge: true },
-  );
+    });
+  } else {
+    // New user: create the full document seeded from the Google profile.
+    await setDoc(doc(db, "users", user.uid), {
+      name: user.displayName || user.email?.split("@")[0] || "Unknown",
+      photoURL: user.photoURL || "",
+      portfolio: "",
+      github: "",
+      linkedin: "",
+      slug,
+      email: user.email || "",
+      updatedAt: serverTimestamp(),
+    });
+  }
   return { slug };
 }
 

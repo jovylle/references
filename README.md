@@ -23,3 +23,4 @@ Static frontend for a Google-authenticated reference request flow using Firebase
 - `/` app home
 - `/confirm.html?token=...` request confirmation
 - `/<slug>` public profile
+
