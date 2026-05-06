@@ -30,7 +30,19 @@ async function renderSignedOutRequest() {
     return;
   }
 
-  const requestRecord = await getRequestByToken(token, { publicPreview: true });
+  let requestRecord = null;
+  try {
+    requestRecord = await getRequestByToken(token, { publicPreview: true });
+  } catch (error) {
+    // Some environments may still deny unauthenticated request reads.
+    if (error?.code === "permission-denied" || error?.code === "firestore/permission-denied") {
+      requestState.innerHTML =
+        '<p class="muted">This link is invalid, expired, or already confirmed. If you already confirmed, you can close this page.</p>';
+      return;
+    }
+    throw error;
+  }
+
   if (!requestRecord) {
     requestState.innerHTML =
       '<p class="muted">This link is invalid, expired, or already confirmed. If you already confirmed, you can close this page.</p>';
@@ -182,8 +194,13 @@ onAuthStateChanged(auth, async (user) => {
     try {
       await renderSignedOutRequest();
     } catch (error) {
-      console.error(error);
-      requestState.innerHTML = `<p class="muted">Could not load request.</p>`;
+      if (error?.code === "permission-denied" || error?.code === "firestore/permission-denied") {
+        requestState.innerHTML =
+          '<p class="muted">This link is invalid, expired, or already confirmed. If you already confirmed, you can close this page.</p>';
+      } else {
+        console.error(error);
+        requestState.innerHTML = `<p class="muted">Could not load request.</p>`;
+      }
     }
     return;
   }
