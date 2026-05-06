@@ -7,6 +7,7 @@ import {
   updateReference,
   deleteReference,
   updateUserName,
+  updateUserBio,
   updateUserSlug,
   updateUserLinks,
   getFriendlyErrorMessage,
@@ -73,7 +74,10 @@ async function route() {
 
   if (!slug) {
     if (currentUser) {
-      const { slug: mySlug } = await ensureUserDocument(currentUser);
+      const existing = await getUserById(currentUser.uid);
+      const mySlug = existing?.slug
+        ? existing.slug
+        : (await ensureUserDocument(currentUser)).slug;
       window.location.replace(`/${mySlug}`);
     } else {
       window.location.replace('/');
@@ -113,13 +117,6 @@ async function render() {
     return;
   }
 
-  if (currentUser && currentUser.uid === profileUser.id) {
-    try {
-      await ensureUserDocument(currentUser);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   const isOwnProfile = Boolean(currentUser && currentUser.uid === profileUser.id);
 
@@ -137,6 +134,7 @@ async function render() {
   const references = await getReferences(profileUser.id);
 
   const publicSlug = profileUser.slug || "";
+  const bio = profileUser.bio || "";
   const portfolio = profileUser.portfolio || "";
   const github = profileUser.github || "";
   const linkedin = profileUser.linkedin || "";
@@ -155,6 +153,14 @@ async function render() {
             <input id="nameInput" type="text" value="${escapeHtml(profileUser.name)}" maxlength="120" style="margin-top: 6px; width: 100%; box-sizing: border-box;" />
           </label>
           <button type="button" id="updateNameBtn" class="button button-secondary">Save name</button>
+        </div>
+
+        <div class="stack" style="display: grid; gap: 10px; margin-top: 20px;">
+          <label class="muted" style="font-size: 0.95rem;">
+            Tagline <span style="font-weight: 400; opacity: 0.85;">(e.g. Full Stack Developer)</span>
+            <input id="bioInput" type="text" value="${escapeHtml(bio)}" maxlength="160" placeholder="e.g. Full Stack Developer" style="margin-top: 6px; width: 100%; box-sizing: border-box;" />
+          </label>
+          <button type="button" id="updateBioBtn" class="button button-secondary">Save tagline</button>
         </div>
 
         <div class="stack" style="display: grid; gap: 10px; margin-top: 20px;">
@@ -243,6 +249,7 @@ async function render() {
     <div class="profile-public-view">
       <header class="profile-headline">
         <h1 id="profileNameHeading" class="profile-title">${escapeHtml(profileUser.name)}</h1>
+        ${bio ? `<p id="profileBioHeading" class="profile-bio">${escapeHtml(bio)}</p>` : ""}
         ${linksHTML}
       </header>
       <div class="profile-divider" role="presentation"></div>
@@ -300,6 +307,45 @@ async function render() {
         console.error(error);
         setEditStatus(getFriendlyErrorMessage(error));
         btn.textContent = "Save name";
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById("updateBioBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("updateBioBtn");
+      const newBio = document.getElementById("bioInput").value.trim();
+      try {
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+        await updateUserBio(currentUser.uid, newBio);
+        profileUser.bio = newBio;
+        const bioEl = document.getElementById("profileBioHeading");
+        if (newBio) {
+          if (bioEl) {
+            bioEl.textContent = newBio;
+          } else {
+            const heading = document.getElementById("profileNameHeading");
+            if (heading) {
+              const p = document.createElement("p");
+              p.id = "profileBioHeading";
+              p.className = "profile-bio";
+              p.textContent = newBio;
+              heading.insertAdjacentElement("afterend", p);
+            }
+          }
+        } else if (bioEl) {
+          bioEl.remove();
+        }
+        setEditStatus("Tagline updated.");
+        btn.textContent = "Saved!";
+        setTimeout(() => {
+          btn.textContent = "Save tagline";
+          btn.disabled = false;
+        }, 1500);
+      } catch (error) {
+        console.error(error);
+        setEditStatus(getFriendlyErrorMessage(error));
+        btn.textContent = "Save tagline";
         btn.disabled = false;
       }
     });

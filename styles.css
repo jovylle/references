@@ -233,6 +233,13 @@ input:focus {
   gap: 10px;
 }
 
+.profile-bio {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
 .profile-links-wrap {
   display: grid;
   justify-content: end;

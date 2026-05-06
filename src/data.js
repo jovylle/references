@@ -67,6 +67,7 @@ export async function ensureUserDocument(user) {
     // New user: create the full document seeded from the Google profile.
     await setDoc(doc(db, "users", user.uid), {
       name: user.displayName || user.email?.split("@")[0] || "Unknown",
+      bio: "",
       photoURL: user.photoURL || "",
       portfolio: "",
       github: "",
@@ -91,6 +92,10 @@ export async function updateUserLinks(userId, links) {
 export async function updateUserName(userId, newName) {
   if (!newName?.trim()) throw new Error("Name cannot be empty.");
   await updateDoc(doc(db, "users", userId), { name: newName.trim() });
+}
+
+export async function updateUserBio(userId, newBio) {
+  await updateDoc(doc(db, "users", userId), { bio: newBio.trim() });
 }
 
 export async function updateReference(referenceId, { position, fromUserName } = {}) {
