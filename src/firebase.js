@@ -27,7 +27,10 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
-provider.addScope("email");
+// Explicitly limit OAuth scopes to email only.
+// setCustomParameters({ scope }) overrides Firebase's default which includes 'profile'
+// (name + photo). Without 'profile', the Google consent screen only asks for email.
+provider.setCustomParameters({ scope: "openid email" });
 export const db = getFirestore(app);
 
 export {

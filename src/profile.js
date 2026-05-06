@@ -237,9 +237,9 @@ async function render() {
       ? `<div class="profile-links-wrap">
         <p class="profile-links-kicker">View my work</p>
         <div class="profile-links">
-        ${portfolioHref ? `<a href="${escapeHtml(portfolioHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">Portfolio <span aria-hidden="true">↗</span></a>` : ""}
-        ${githubHref ? `<a href="${escapeHtml(githubHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">GitHub <span aria-hidden="true">↗</span></a>` : ""}
-        ${linkedinHref ? `<a href="${escapeHtml(linkedinHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">LinkedIn <span aria-hidden="true">↗</span></a>` : ""}
+        ${portfolioHref ? `<a href="${escapeHtml(portfolioHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">Portfolio <span class="external-link-icon" aria-hidden="true">↗</span></a>` : ""}
+        ${githubHref ? `<a href="${escapeHtml(githubHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">GitHub <span class="external-link-icon" aria-hidden="true">↗</span></a>` : ""}
+        ${linkedinHref ? `<a href="${escapeHtml(linkedinHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">LinkedIn <span class="external-link-icon" aria-hidden="true">↗</span></a>` : ""}
         </div>
       </div>`
       : "";

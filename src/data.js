@@ -46,7 +46,7 @@ export function getFriendlyErrorMessage(error) {
 export async function ensureUserDocument(user) {
   const existing = await getDoc(doc(db, "usersC", user.uid));
   const existingSlug = existing.exists() ? existing.data().slugF : "";
-  const baseSlug = slugify(user.displayName || user.email || "profile") || "profile";
+  const baseSlug = slugify(user.email || "profile") || "profile";
   let slug = existingSlug || baseSlug;
 
   if (!existingSlug) {
@@ -66,9 +66,9 @@ export async function ensureUserDocument(user) {
   } else {
     // New user: create the full document seeded from the Google profile.
     await setDoc(doc(db, "usersC", user.uid), {
-      nameF: user.displayName || user.email?.split("@")[0] || "Unknown",
+      nameF: user.email?.split("@")[0] || "Unknown",
       bioF: "",
-      photoURLF: user.photoURL || "",
+      photoURLF: "",
       portfolioF: "",
       githubF: "",
       linkedinF: "",
@@ -190,7 +190,7 @@ export async function approveRequest(requestRecord, currentUser) {
       requestIdF: requestRecord.id,
       fromUserIdF: currentUser.uid,
       fromUserEmailF: currentUser.email || "",
-      fromUserNameF: currentUser.displayName || currentUser.email?.split("@")[0] || "Unknown",
+      fromUserNameF: currentUser.email?.split("@")[0] || "Unknown",
       toUserIdF: latestData.fromUserIdF,
       toUserEmailF: latestData.fromUserEmailF || "",
       positionF: latestData.positionF,
