@@ -46,7 +46,10 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
-const profileState = document.getElementById("profileState");
+function getProfileMount() {
+  return document.getElementById("profileState");
+}
+
 let currentUser = null;
 let profileUser = null;
 
@@ -56,6 +59,9 @@ function setEditStatus(message) {
 }
 
 async function route() {
+  const mount = getProfileMount();
+  if (!mount) return;
+
   const slug = getSlug();
 
   if (!slug) {
@@ -67,7 +73,7 @@ async function route() {
         return;
       }
     }
-    profileState.innerHTML =
+    mount.innerHTML =
       '<p class="muted">Open your profile link, or sign in on the home page—if you already have an account you will be sent to your profile URL automatically.</p>';
     return;
   }
@@ -83,18 +89,24 @@ async function route() {
       await route();
     } catch (error) {
       console.error(error);
-      profileState.innerHTML = `<p class="muted">${escapeHtml(getFriendlyErrorMessage(error))}</p>`;
+      const mount = getProfileMount();
+      if (mount) {
+        mount.innerHTML = `<p class="muted">${escapeHtml(getFriendlyErrorMessage(error))}</p>`;
+      }
     }
   });
 })();
 
 async function render() {
+  const mount = getProfileMount();
+  if (!mount) return;
+
   const slug = getSlug();
   if (!slug) return;
 
   profileUser = await getUserBySlug(slug);
   if (!profileUser) {
-    profileState.innerHTML = '<p class="muted">Profile not found.</p>';
+    mount.innerHTML = '<p class="muted">Profile not found.</p>';
     return;
   }
 
@@ -107,11 +119,6 @@ async function render() {
   }
 
   const isOwnProfile = Boolean(currentUser && currentUser.uid === profileUser.id);
-
-  let guestBanner = "";
-  if (!currentUser) {
-    guestBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">To edit your name and settings, <a href="/">sign in on the home page</a> with the Google account that owns this profile link.</p>`;
-  }
 
   let otherProfileBanner = "";
   if (currentUser && !isOwnProfile) {
@@ -134,40 +141,43 @@ async function render() {
   const editSection = isOwnProfile
     ? `
     <div class="stack" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid rgba(17, 75, 95, 0.15);">
-      <h2 style="margin-top: 0; font-size: 1.15rem;">Edit your profile</h2>
-      <p id="profileEditStatus" class="status" style="min-height: 1.25em;"></p>
+      <button type="button" id="profileEditToggleBtn" class="button button-secondary" aria-expanded="false" aria-controls="profileEditPanel">Edit profile</button>
+      <div id="profileEditPanel" hidden style="margin-top: 16px;">
+        <h2 style="margin-top: 0; font-size: 1.15rem;">Edit your profile</h2>
+        <p id="profileEditStatus" class="status" style="min-height: 1.25em;"></p>
 
-      <div class="stack" style="display: grid; gap: 10px;">
-        <label class="muted" style="font-size: 0.95rem;">
-          Your name
-          <input id="nameInput" type="text" value="${escapeHtml(profileUser.name)}" maxlength="120" style="margin-top: 6px; width: 100%; box-sizing: border-box;" />
-        </label>
-        <button type="button" id="updateNameBtn" class="button button-secondary">Save name</button>
-      </div>
+        <div class="stack" style="display: grid; gap: 10px;">
+          <label class="muted" style="font-size: 0.95rem;">
+            Your name
+            <input id="nameInput" type="text" value="${escapeHtml(profileUser.name)}" maxlength="120" style="margin-top: 6px; width: 100%; box-sizing: border-box;" />
+          </label>
+          <button type="button" id="updateNameBtn" class="button button-secondary">Save name</button>
+        </div>
 
-      <div class="stack" style="display: grid; gap: 10px; margin-top: 20px;">
-        <label class="muted" style="font-size: 0.95rem;">
-          Your profile URL (slug)
-          <input id="slugInput" type="text" value="${escapeHtml(publicSlug)}" maxlength="40" style="margin-top: 6px; width: 100%; box-sizing: border-box;" />
-        </label>
-        <button type="button" id="updateSlugBtn" class="button button-secondary">Save slug</button>
-      </div>
+        <div class="stack" style="display: grid; gap: 10px; margin-top: 20px;">
+          <label class="muted" style="font-size: 0.95rem;">
+            Your profile URL (slug)
+            <input id="slugInput" type="text" value="${escapeHtml(publicSlug)}" maxlength="40" style="margin-top: 6px; width: 100%; box-sizing: border-box;" />
+          </label>
+          <button type="button" id="updateSlugBtn" class="button button-secondary">Save slug</button>
+        </div>
 
-      <div class="stack" style="display: grid; gap: 10px; margin-top: 20px;">
-        <p style="font-size: 0.95rem; color: var(--muted); margin: 0;">Profile links</p>
-        <label class="muted" style="font-size: 0.85rem;">
-          Portfolio
-          <input id="portfolioInput" type="url" value="${escapeHtml(portfolio)}" placeholder="https://example.com" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
-        </label>
-        <label class="muted" style="font-size: 0.85rem;">
-          GitHub
-          <input id="githubInput" type="url" value="${escapeHtml(github)}" placeholder="https://github.com/username" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
-        </label>
-        <label class="muted" style="font-size: 0.85rem;">
-          LinkedIn
-          <input id="linkedinInput" type="url" value="${escapeHtml(linkedin)}" placeholder="https://linkedin.com/in/username" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
-        </label>
-        <button type="button" id="updateLinksBtn" class="button button-secondary">Save links</button>
+        <div class="stack" style="display: grid; gap: 10px; margin-top: 20px;">
+          <p style="font-size: 0.95rem; color: var(--muted); margin: 0;">Profile links</p>
+          <label class="muted" style="font-size: 0.85rem;">
+            Portfolio
+            <input id="portfolioInput" type="url" value="${escapeHtml(portfolio)}" placeholder="https://example.com" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
+          </label>
+          <label class="muted" style="font-size: 0.85rem;">
+            GitHub
+            <input id="githubInput" type="url" value="${escapeHtml(github)}" placeholder="https://github.com/username" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
+          </label>
+          <label class="muted" style="font-size: 0.85rem;">
+            LinkedIn
+            <input id="linkedinInput" type="url" value="${escapeHtml(linkedin)}" placeholder="https://linkedin.com/in/username" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
+          </label>
+          <button type="button" id="updateLinksBtn" class="button button-secondary">Save links</button>
+        </div>
       </div>
     </div>
   `
@@ -214,8 +224,7 @@ async function render() {
       </div>`
       : "";
 
-  profileState.innerHTML = `
-    ${guestBanner}
+  mount.innerHTML = `
     ${otherProfileBanner}
     ${editSection}
     <div>
@@ -227,6 +236,17 @@ async function render() {
   `;
 
   if (isOwnProfile) {
+    const profileEditPanel = document.getElementById("profileEditPanel");
+    const profileEditToggleBtn = document.getElementById("profileEditToggleBtn");
+    const setProfileEditOpen = (open) => {
+      profileEditPanel.hidden = !open;
+      profileEditToggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      profileEditToggleBtn.textContent = open ? "Done editing" : "Edit profile";
+    };
+    profileEditToggleBtn.addEventListener("click", () => {
+      setProfileEditOpen(profileEditPanel.hidden);
+    });
+
     document.getElementById("updateNameBtn").addEventListener("click", async () => {
       const btn = document.getElementById("updateNameBtn");
       const newName = document.getElementById("nameInput").value.trim();

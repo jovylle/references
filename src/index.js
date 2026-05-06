@@ -20,14 +20,10 @@ const requestHint = document.getElementById("requestHint");
 const createdLink = document.getElementById("createdLink");
 const createdLinkValue = document.getElementById("createdLinkValue");
 const infoSection = document.getElementById("infoSection");
-const profileCta = document.getElementById("profileCta");
-const profileCtaLink = document.getElementById("profileCtaLink");
 const homeFooterProfileLink = document.getElementById("homeFooterProfileLink");
-const homeInlineProfileLink = document.getElementById("homeInlineProfileLink");
 
 function setHomeProfileLinks(url) {
   if (homeFooterProfileLink) homeFooterProfileLink.href = url;
-  if (homeInlineProfileLink) homeInlineProfileLink.href = url;
 }
 
 function renderSignedOut() {
@@ -37,7 +33,6 @@ function renderSignedOut() {
   signOutBtn.classList.add("hidden");
   infoSection.classList.remove("hidden");
   authStatus.textContent = "Not signed in.";
-  profileCta.classList.add("hidden");
   setHomeProfileLinks("/profile.html");
 }
 
@@ -51,13 +46,9 @@ async function renderSignedIn(user) {
 
   const profile = await getUserById(user.uid);
   if (profile?.slug) {
-    const profileUrl = `/${profile.slug}`;
-    profileCtaLink.href = profileUrl;
-    setHomeProfileLinks(profileUrl);
-    profileCta.classList.remove("hidden");
+    setHomeProfileLinks(`/${profile.slug}`);
   } else {
     setHomeProfileLinks("/profile.html");
-    profileCta.classList.add("hidden");
   }
 }
 
