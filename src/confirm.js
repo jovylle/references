@@ -68,7 +68,8 @@ async function renderRequest(user) {
 
   const requestRecord = await getRequestByToken(token);
   if (!requestRecord) {
-    requestState.innerHTML = '<p class="muted">Request not found.</p>';
+    requestState.innerHTML =
+      '<p class="muted">This link is invalid, expired, or already confirmed. If you already confirmed, you can close this page.</p>';
     return;
   }
 
