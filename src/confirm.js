@@ -136,11 +136,12 @@ async function renderRequest(user) {
           const { addDoc, collection, serverTimestamp } = await import("./firebase.js");
           const { db } = await import("./firebase.js");
           await addDoc(collection(db, "references"), {
-            fromUserId: user.uid,
-            fromUserEmail: user.email || "",
-            fromUserName: user.displayName || user.email?.split("@")[0] || "Unknown",
-            toUserId: data.fromUserId,
-            toUserEmail: data.fromUserEmail || "",
+            // Reciprocal add should show on the current user's profile.
+            fromUserId: data.fromUserId,
+            fromUserEmail: data.fromUserEmail || "",
+            fromUserName: fromUser?.name || data.fromUserName || data.fromUserEmail || "Unknown",
+            toUserId: user.uid,
+            toUserEmail: user.email || "",
             position: reciprocalPosition,
             status: "confirmed",
             createdAt: serverTimestamp(),
