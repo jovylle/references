@@ -228,10 +228,13 @@ async function render() {
 
   const linksHTML =
     portfolioHref || githubHref || linkedinHref
-      ? `<div class="profile-links">
+      ? `<div class="profile-links-wrap">
+        <p class="profile-links-kicker">View my work</p>
+        <div class="profile-links">
         ${portfolioHref ? `<a href="${escapeHtml(portfolioHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">Portfolio <span aria-hidden="true">↗</span></a>` : ""}
         ${githubHref ? `<a href="${escapeHtml(githubHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">GitHub <span aria-hidden="true">↗</span></a>` : ""}
         ${linkedinHref ? `<a href="${escapeHtml(linkedinHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">LinkedIn <span aria-hidden="true">↗</span></a>` : ""}
+        </div>
       </div>`
       : "";
 
@@ -239,10 +242,17 @@ async function render() {
     ${otherProfileBanner}
     ${editSection}
     <div class="profile-public-view">
-      <h1 id="profileNameHeading" class="profile-title">${escapeHtml(profileUser.name)}</h1>
-      ${linksHTML}
+      <header class="profile-headline">
+        <h1 id="profileNameHeading" class="profile-title">${escapeHtml(profileUser.name)}</h1>
+        ${linksHTML}
+      </header>
+      <div class="profile-divider" role="presentation"></div>
+      <section class="references-block" aria-label="References">
       <h2 class="references-heading">References</h2>
+      <p class="references-subtitle">People I've worked with who can vouch for my skills, work ethic, and professionalism.</p>
       ${references.length > 0 ? `<div class="stack profile-reference-list" style="gap: 16px;">${refList}</div>` : '<p class="muted profile-empty-state">No confirmed references yet.</p>'}
+      </section>
+      <div class="profile-bottom-note">Powered by <strong>Referly</strong></div>
     </div>
   `;
 
