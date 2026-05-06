@@ -11,7 +11,7 @@ import {
   updateUserSlug,
   updateUserLinks,
   getFriendlyErrorMessage,
-} from "./data.js";
+} from "./data.js?v=2";
 
 const RESERVED_PATHS = new Set([
   "profile",
