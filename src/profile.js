@@ -1,4 +1,4 @@
-import { auth, onAuthStateChanged } from "./firebase.js";
+import { auth, onAuthStateChanged } from "./firebase.js?v=2";
 import {
   ensureUserDocument,
   getReferences,
@@ -11,7 +11,7 @@ import {
   updateUserSlug,
   updateUserLinks,
   getFriendlyErrorMessage,
-} from "./data.js?v=2";
+} from "./data.js?v=3";
 
 const RESERVED_PATHS = new Set([
   "profile",

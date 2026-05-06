@@ -3,14 +3,14 @@ import {
   onAuthStateChanged,
   provider,
   signInWithPopup,
-} from "./firebase.js";
+} from "./firebase.js?v=2";
 import {
   createRequest,
   ensureUserDocument,
   signOutIfNeeded,
   getFriendlyErrorMessage,
   getUserById,
-} from "./data.js";
+} from "./data.js?v=3";
 
 const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");

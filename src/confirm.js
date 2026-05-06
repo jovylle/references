@@ -3,8 +3,8 @@ import {
   onAuthStateChanged,
   provider,
   signInWithPopup,
-} from "./firebase.js";
-import { approveRequest, ensureUserDocument, getRequestByToken, signOutIfNeeded, getFriendlyErrorMessage } from "./data.js";
+} from "./firebase.js?v=2";
+import { approveRequest, ensureUserDocument, getRequestByToken, signOutIfNeeded, getFriendlyErrorMessage } from "./data.js?v=3";
 
 const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");

@@ -11,8 +11,8 @@ import {
   setDoc,
   updateDoc,
   where,
-} from "./firebase.js";
-import { auth, db, signOut } from "./firebase.js";
+} from "./firebase.js?v=2";
+import { auth, db, signOut } from "./firebase.js?v=2";
 
 export function slugify(name) {
   return (name || "")
