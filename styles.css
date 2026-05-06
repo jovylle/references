@@ -58,6 +58,25 @@ a {
   padding: 28px;
 }
 
+.top-nav {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.top-nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.top-nav a:hover {
+  text-decoration: underline;
+}
+
 .hero h1,
 .profile-page h1 {
   margin: 6px 0 12px;
