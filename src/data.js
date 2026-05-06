@@ -108,7 +108,9 @@ export async function deleteReference(referenceId) {
 
 export async function getUserById(userId) {
   const snap = await getDoc(doc(db, "users", userId));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  if (!snap.exists()) return null;
+  // Document id must win: stored fields named `id` would otherwise break auth checks.
+  return { ...snap.data(), id: snap.id };
 }
 
 export async function getUserBySlug(slug) {
@@ -116,7 +118,7 @@ export async function getUserBySlug(slug) {
   const snap = await getDocs(q);
   if (snap.empty) return null;
   const docSnap = snap.docs[0];
-  return { id: docSnap.id, ...docSnap.data() };
+  return { ...docSnap.data(), id: docSnap.id };
 }
 
 export async function createRequest(user, toName, position) {
