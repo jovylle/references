@@ -21,9 +21,25 @@ const createdLink = document.getElementById("createdLink");
 const createdLinkValue = document.getElementById("createdLinkValue");
 const infoSection = document.getElementById("infoSection");
 const homeFooterProfileLink = document.getElementById("homeFooterProfileLink");
+const homeProfileUrlLine = document.getElementById("homeProfileUrlLine");
+const homeProfileUrlAnchor = document.getElementById("homeProfileUrlAnchor");
 
-function setHomeProfileLinks(url) {
-  if (homeFooterProfileLink) homeFooterProfileLink.href = url;
+function setHomeProfileLinks(slug) {
+  const path = slug ? `/${slug}` : "/profile.html";
+  const label = slug ? path : "My profile";
+
+  if (homeFooterProfileLink) {
+    homeFooterProfileLink.href = path;
+    homeFooterProfileLink.textContent = label;
+  }
+  if (homeProfileUrlAnchor) {
+    homeProfileUrlAnchor.href = path;
+    homeProfileUrlAnchor.textContent = label;
+  }
+  if (homeProfileUrlLine) {
+    if (slug) homeProfileUrlLine.classList.remove("hidden");
+    else homeProfileUrlLine.classList.add("hidden");
+  }
 }
 
 function renderSignedOut() {
@@ -33,10 +49,10 @@ function renderSignedOut() {
   signOutBtn.classList.add("hidden");
   infoSection.classList.remove("hidden");
   authStatus.textContent = "Not signed in.";
-  setHomeProfileLinks("/profile.html");
+  setHomeProfileLinks("");
 }
 
-async function renderSignedIn(user) {
+async function renderSignedIn(user, slug) {
   requestForm.classList.remove("hidden");
   requestHint.classList.add("hidden");
   infoSection.classList.add("hidden");
@@ -44,12 +60,8 @@ async function renderSignedIn(user) {
   signOutBtn.classList.remove("hidden");
   authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
 
-  const profile = await getUserById(user.uid);
-  if (profile?.slug) {
-    setHomeProfileLinks(`/${profile.slug}`);
-  } else {
-    setHomeProfileLinks("/profile.html");
-  }
+  const resolvedSlug = slug || (await getUserById(user.uid))?.slug || "";
+  setHomeProfileLinks(resolvedSlug);
 }
 
 signInBtn.addEventListener("click", async () => {
@@ -107,8 +119,8 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   try {
-    await ensureUserDocument(user);
-    await renderSignedIn(user);
+    const { slug } = await ensureUserDocument(user);
+    await renderSignedIn(user, slug);
   } catch (error) {
     console.error(error);
     authStatus.textContent = getFriendlyErrorMessage(error);

@@ -53,8 +53,8 @@ async function renderRequest(user) {
     <div class="stack">
       <p class="reference-name">${data.toName}</p>
       <p class="reference-position">${data.position}</p>
-      <p class="muted">This request is waiting for confirmation.</p>
-      <button id="approveBtn" class="button button-primary">Confirm reference</button>
+      <p class="muted">Tap confirm if this is what you agreed to.</p>
+      <button id="approveBtn" class="button button-primary">Confirm</button>
     </div>
   `;
 
@@ -89,7 +89,7 @@ async function renderRequest(user) {
         const reciprocalPosition = document.getElementById("reciprocalPosition").value.trim();
 
         if (!reciprocalPosition) {
-          authStatus.textContent = "Position cannot be empty.";
+          authStatus.textContent = "Add a short description first.";
           return;
         }
 
@@ -108,14 +108,14 @@ async function renderRequest(user) {
             status: "confirmed",
             createdAt: serverTimestamp(),
           });
-          authStatus.textContent = "Reciprocal reference added!";
+          authStatus.textContent = "Added to your profile.";
           submitBtn.textContent = "Added!";
           document.getElementById("skipReciprocal").remove();
         } catch (error) {
           console.error(error);
           authStatus.textContent = getFriendlyErrorMessage(error);
           submitBtn.disabled = false;
-          submitBtn.textContent = "Add reciprocal reference";
+          submitBtn.textContent = "Add to my profile";
         }
       });
 
@@ -126,7 +126,7 @@ async function renderRequest(user) {
       console.error(error);
       authStatus.textContent = getFriendlyErrorMessage(error);
       btn.disabled = false;
-      btn.textContent = "Confirm reference";
+      btn.textContent = "Confirm";
     }
   });
 }
@@ -152,7 +152,7 @@ signOutBtn.addEventListener("click", async () => {
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     authStatus.textContent = "Not signed in.";
-    requestState.innerHTML = '<p class="muted">Ready to confirm after you sign in.</p>';
+    requestState.innerHTML = '<p class="muted">Sign in to confirm.</p>';
     signInBtn.classList.remove("hidden");
     signOutBtn.classList.add("hidden");
     try {

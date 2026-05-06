@@ -9,9 +9,9 @@
   <body>
     <main class="shell narrow">
       <section class="panel hero">
-        <p class="eyebrow">Confirm reference</p>
-        <h1>Approve the request.</h1>
-        <p class="lede">Sign in, review the request, then confirm it if it is correct.</p>
+        <p class="eyebrow">Confirm a reference</p>
+        <h1>Does this look right?</h1>
+        <p class="lede">Sign in, read the details, then confirm if they match what you agreed to.</p>
         <div class="auth-row">
           <button id="signInBtn" class="button button-primary">Continue with Google</button>
           <button id="signOutBtn" class="button button-secondary hidden">Sign out</button>
@@ -31,16 +31,16 @@
       </section>
 
       <section class="panel hidden" id="reciprocalSection">
-        <h2 style="margin-top: 0; font-size: 1.3rem;">Add reciprocal reference</h2>
+        <h2 style="margin-top: 0; font-size: 1.3rem;">Add them to your profile too? (optional)</h2>
         <p style="color: var(--muted); margin: 12px 0 20px;">
-          Optionally add this person to your references too.
+          If you also want them listed on your public profile, add a short line about their role or how you worked together.
         </p>
         <form id="reciprocalForm" class="form">
           <label>
-            Their position / context
-            <input id="reciprocalPosition" type="text" placeholder="Backend Dev @ Project Alpha" maxlength="120" />
+            Their role or how you know them
+            <input id="reciprocalPosition" type="text" placeholder="e.g. Backend dev on our team" maxlength="120" />
           </label>
-          <button type="submit" class="button button-secondary">Add reciprocal reference</button>
+          <button type="submit" class="button button-secondary">Add to my profile</button>
           <button type="button" id="skipReciprocal" class="button button-secondary">Skip</button>
         </form>
       </section>

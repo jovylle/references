@@ -74,7 +74,7 @@ async function route() {
       }
     }
     mount.innerHTML =
-      '<p class="muted">Open your profile link, or sign in on the home page—if you already have an account you will be sent to your profile URL automatically.</p>';
+      '<p class="muted">Use your profile link, or sign in on the <a href="/">home page</a>—we’ll send you to your profile if you already have one.</p>';
     return;
   }
 
@@ -125,9 +125,9 @@ async function render() {
     const me = await getUserById(currentUser.uid);
     const who = escapeHtml(currentUser.email || currentUser.displayName || "another account");
     if (me?.slug) {
-      otherProfileBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">You're signed in as ${who}. This page is not your profile. <a href="/${escapeHtml(me.slug)}">Open your profile</a> to edit your details.</p>`;
+      otherProfileBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">You're signed in as ${who}. This is someone else's page. <a href="/${escapeHtml(me.slug)}">Open your profile</a> to make changes.</p>`;
     } else {
-      otherProfileBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">You're signed in as ${who}, but this profile belongs to another account. Use the <a href="/">home page</a> if you need your profile link.</p>`;
+      otherProfileBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">You're signed in as ${who}, but this profile is for a different account. Go to the <a href="/">home page</a> to find yours.</p>`;
     }
   }
 
@@ -156,10 +156,10 @@ async function render() {
 
         <div class="stack" style="display: grid; gap: 10px; margin-top: 20px;">
           <label class="muted" style="font-size: 0.95rem;">
-            Your profile URL (slug)
+            Your public link name <span style="font-weight: 400; opacity: 0.85;">(the part after the site URL)</span>
             <input id="slugInput" type="text" value="${escapeHtml(publicSlug)}" maxlength="40" style="margin-top: 6px; width: 100%; box-sizing: border-box;" />
           </label>
-          <button type="button" id="updateSlugBtn" class="button button-secondary">Save slug</button>
+          <button type="button" id="updateSlugBtn" class="button button-secondary">Save link</button>
         </div>
 
         <div class="stack" style="display: grid; gap: 10px; margin-top: 20px;">
@@ -194,7 +194,7 @@ async function render() {
         <input type="text" class="ref-name-input" value="${escapeHtml(ref.fromUserName || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
       </label>
       <label class="muted" style="font-size: 0.85rem; display: block; margin-top: 10px;">
-        Position / context
+        Role or how you know them
         <input type="text" class="ref-position-input" value="${escapeHtml(ref.position || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
       </label>
       <p class="reference-confirmation" style="margin-top: 10px;">✔ Confirmed ${year}</p>
@@ -277,7 +277,7 @@ async function render() {
       const btn = document.getElementById("updateSlugBtn");
       const newSlug = document.getElementById("slugInput").value.trim();
       if (!newSlug) {
-        setEditStatus("Slug cannot be empty.");
+        setEditStatus("Link name cannot be empty.");
         return;
       }
       try {
@@ -285,7 +285,7 @@ async function render() {
         btn.textContent = "Saving...";
         await updateUserSlug(currentUser.uid, newSlug);
         profileUser.slug = newSlug;
-        setEditStatus("Slug updated. If you changed the URL, use the new link.");
+        setEditStatus("Link updated. Bookmark the new address if you changed it.");
         btn.textContent = "Saved!";
         const pathSlug = getSlug();
         if (pathSlug && pathSlug !== newSlug) {
@@ -293,13 +293,13 @@ async function render() {
           return;
         }
         setTimeout(() => {
-          btn.textContent = "Save slug";
+          btn.textContent = "Save link";
           btn.disabled = false;
         }, 1500);
       } catch (error) {
         console.error(error);
         setEditStatus(getFriendlyErrorMessage(error));
-        btn.textContent = "Save slug";
+        btn.textContent = "Save link";
         btn.disabled = false;
       }
     });
@@ -342,7 +342,7 @@ async function render() {
         const fromUserName = row.querySelector(".ref-name-input").value.trim();
         const position = row.querySelector(".ref-position-input").value.trim();
         if (!fromUserName || !position) {
-          setEditStatus("Reference name and position cannot be empty.");
+          setEditStatus("Add both a name and a short description.");
           return;
         }
         try {
