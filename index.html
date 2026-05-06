@@ -9,78 +9,54 @@
   <body>
     <main class="shell">
       <section class="panel hero">
-        <p class="eyebrow">Reference checks</p>
-        <h1>Referly</h1>
-        <p class="lede">
-          Send a link, they confirm in one step, and it shows on your profile.
-        </p>
-        <div id="infoSection" class="stack" style="margin-top: 24px; padding: 20px; background: rgba(17, 75, 95, 0.1); border-radius: 8px;">
-          <h2 style="margin-top: 0; font-size: 1.1rem;">How it works</h2>
-          <ol style="line-height: 1.8; color: var(--muted);">
-            <li>Sign in with Google to create your profile</li>
-            <li>Share the link with someone who can vouch for you</li>
-            <li>They sign in and confirm—it takes a moment</li>
-            <li>Confirmed references show on your public profile</li>
-            <li>You can add each other on your profiles if you both want that</li>
-          </ol>
-          <p style="color: var(--muted); margin-top: 16px;">Add Portfolio, GitHub, and LinkedIn on your profile page. Share your profile link anywhere you need it.</p>
-        </div>
-        <div class="auth-row">
-          <button id="signInBtn" class="button button-primary">Continue with Google</button>
-          <button id="signOutBtn" class="button button-secondary hidden">Sign out</button>
-        </div>
-        <p id="authStatus" class="status">Not signed in.</p>
-        <p id="homeProfileUrlLine" class="muted hidden" style="text-align: center; margin-top: 10px; font-size: 0.95rem;">
-          Your profile: <a id="homeProfileUrlAnchor" href="/profile.html" style="color: var(--accent); font-weight: 600; word-break: break-all;"></a>
-        </p>
-        <div style="display: flex; gap: 16px; justify-content: center; margin-top: 20px; font-size: 0.9rem; flex-wrap: wrap;">
-          <a href="/about.html" style="color: var(--muted); text-decoration: none;">About</a>
-          <span style="color: var(--muted);">•</span>
-          <a href="/privacy.html" style="color: var(--muted); text-decoration: none;">Privacy</a>
-          <span style="color: var(--muted);">•</span>
-          <a id="homeFooterProfileLink" href="/profile.html" style="color: var(--muted); text-decoration: none;">My profile</a>
+        <div class="hero-main-layout">
+          <div>
+            <p class="eyebrow">Reference checks</p>
+            <h1>Referly</h1>
+            <p class="lede">
+              Send a link, they confirm in one step, and it shows on your profile.
+            </p>
+          </div>
         </div>
       </section>
 
       <section class="grid">
         <article class="panel">
           <h2>Create request</h2>
-          <form id="requestForm" class="form hidden">
-            <label>
-              Name
-              <input id="toName" type="text" placeholder="Alex Chen" maxlength="120" required />
-            </label>
-            <label>
-              Their role or how you know them
-              <input id="position" type="text" placeholder="e.g. Backend dev on our team" maxlength="120" required />
-            </label>
-            <button type="submit" class="button button-primary">Generate link</button>
-          </form>
-          <div id="requestHint" class="hint">
-            Sign in to create a request link.
-          </div>
-          <div id="createdLink" class="result hidden">
-            <p class="result-label">Request link</p>
-            <a id="createdLinkValue" href="#" target="_blank" rel="noreferrer"></a>
-          </div>
+          <p class="muted">
+            Keep home clean and focused. Go to the dedicated request page to generate and copy your shareable confirmation link.
+          </p>
+          <p style="margin-top: 14px;">
+            <a href="/create.html" class="button button-primary" style="display: inline-flex; align-items: center; text-decoration: none;">Open request page</a>
+          </p>
         </article>
 
         <article class="panel">
           <h2>Your public profile</h2>
           <p class="muted">
-            To change your name, public link, social links, or how a reference is worded, use your profile link above when you’re signed in (the one that looks like <strong>/yourname</strong>), or the matching link next to About and Privacy.
+            To change your name, public link, social links, or how a reference is worded, use your profile link from the action menu when you’re signed in (the one that looks like <strong>/yourname</strong>).
           </p>
           <p class="muted" style="margin-top: 12px;">
-            Build a request link on the left, send it to the other person, then manage everything else from your profile page.
+            Build a request link from the request page, send it to the other person, then manage everything else from your profile page.
           </p>
+        </article>
+
+        <article id="infoSection" class="panel panel-wide how-it-works stack">
+          <h2>How it works</h2>
+          <ol class="how-it-works-list">
+            <li>Sign in with Google to create your profile</li>
+            <li>Share the link with someone who can vouch for you</li>
+            <li>They sign in and confirm—it takes a moment</li>
+            <li>Confirmed references show on your public profile</li>
+            <li>You can add each other on your profiles if you both want that</li>
+          </ol>
+          <p class="muted">Add Portfolio, GitHub, and LinkedIn on your profile page. Share your profile link anywhere you need it.</p>
         </article>
       </section>
 
-      <footer style="text-align: center; margin-top: 40px; padding: 20px; color: var(--muted); font-size: 0.9rem;">
-        <a href="/privacy.html" style="color: var(--muted);">Privacy Policy</a>
-      </footer>
+      <footer id="homeFooter" class="home-footer"></footer>
     </main>
 
-    <script type="module" src="/src/index.js?v=4"></script>
+    <script type="module" src="/src/index.js?v=8"></script>
   </body>
 </html>

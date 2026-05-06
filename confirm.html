@@ -9,21 +9,20 @@
   <body>
     <main class="shell narrow">
       <section class="panel hero">
-        <nav class="top-nav" aria-label="Primary">
-          <a href="/">Home</a>
-          <span>•</span>
-          <a href="/about.html">About</a>
-          <span>•</span>
-          <a href="/privacy.html">Privacy</a>
-        </nav>
-        <p class="eyebrow">Confirm a reference</p>
-        <h1>Does this look right?</h1>
-        <p class="lede">Review the details below. Sign in when you’re ready to confirm.</p>
-        <div class="auth-row">
-          <button id="signInBtn" class="button button-primary">Continue with Google</button>
-          <button id="signOutBtn" class="button button-secondary hidden">Sign out</button>
+        <div class="hero-main-layout">
+          <div>
+            <nav class="top-nav" aria-label="Primary">
+              <a href="/">Home</a>
+              <span>•</span>
+              <a href="/about.html">About</a>
+              <span>•</span>
+              <a href="/privacy.html">Privacy</a>
+            </nav>
+            <p class="eyebrow">Confirm a reference</p>
+            <h1>Does this look right?</h1>
+            <p class="lede">Review the details below. Sign in when you’re ready to confirm.</p>
+          </div>
         </div>
-        <p id="authStatus" class="status">Not signed in.</p>
       </section>
 
       <section class="panel">
@@ -47,11 +46,9 @@
         </form>
       </section>
 
-      <footer style="text-align: center; margin-top: 40px; padding: 20px; color: var(--muted); font-size: 0.9rem;">
-        <a href="/privacy.html" style="color: var(--muted);">Privacy Policy</a>
-      </footer>
+      <footer id="confirmFooter" class="home-footer"></footer>
     </main>
 
-    <script type="module" src="/src/confirm.js?v=6"></script>
+    <script type="module" src="/src/confirm.js?v=10"></script>
   </body>
 </html>

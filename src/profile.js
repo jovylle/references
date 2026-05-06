@@ -1,4 +1,11 @@
-import { auth, onAuthStateChanged } from "./firebase.js?v=2";
+import { auth, onAuthStateChanged, provider, signInWithPopup } from "./firebase.js?v=2";
+import {
+  clearSessionHint,
+  initAccountControlsDock,
+  mountAccountControls,
+  readSessionHint,
+  saveSessionHint,
+} from "./ui.js?v=4";
 import {
   ensureUserDocument,
   getReferences,
@@ -10,8 +17,9 @@ import {
   updateUserBio,
   updateUserSlug,
   updateUserLinks,
+  signOutIfNeeded,
   getFriendlyErrorMessage,
-} from "./data.js?v=3";
+} from "./data.js?v=4";
 
 const RESERVED_PATHS = new Set([
   "profile",
@@ -20,6 +28,8 @@ const RESERVED_PATHS = new Set([
   "confirm.html",
   "about",
   "about.html",
+  "create",
+  "create.html",
   "privacy",
   "privacy.html",
   "index.html",
@@ -60,6 +70,60 @@ function getProfileMount() {
 
 let currentUser = null;
 let profileUser = null;
+mountAccountControls({
+  includeProfileLink: true,
+  includeCreateRequest: true,
+  includeEditProfileAction: true,
+  createRequestHref: "/create.html",
+});
+initAccountControlsDock();
+
+const signInBtn = document.getElementById("signInBtn");
+const signOutBtn = document.getElementById("signOutBtn");
+const authStatus = document.getElementById("authStatus");
+
+function setDockProfileLink(slug) {
+  const path = slug ? `/${slug}` : "/profile.html";
+  const label = slug ? path : "My profile";
+  const anchor = document.getElementById("homeProfileUrlAnchor");
+  if (anchor) {
+    anchor.href = path;
+    anchor.textContent = label;
+  }
+}
+
+function setDockEditAction(visible, onClick = null) {
+  const editBtn = document.getElementById("accountEditProfileBtn");
+  if (!editBtn) return;
+  if (!visible) {
+    editBtn.classList.add("hidden");
+    editBtn.onclick = null;
+    return;
+  }
+  editBtn.classList.remove("hidden");
+  editBtn.onclick = onClick;
+}
+
+function renderDockSignedOut() {
+  if (signInBtn) signInBtn.classList.remove("hidden");
+  if (signOutBtn) signOutBtn.classList.add("hidden");
+  if (authStatus) authStatus.textContent = "Not signed in.";
+  setDockProfileLink("");
+  setDockEditAction(false);
+}
+
+function renderDockSignedInImmediate(user, slug = "") {
+  if (signInBtn) signInBtn.classList.add("hidden");
+  if (signOutBtn) signOutBtn.classList.remove("hidden");
+  if (authStatus) authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+  if (slug) setDockProfileLink(slug);
+}
+
+async function renderDockSignedIn(user, slug = "") {
+  renderDockSignedInImmediate(user, slug);
+  const resolvedSlug = slug || (await getUserById(user.uid))?.slugF || "";
+  setDockProfileLink(resolvedSlug);
+}
 
 function setEditStatus(message) {
   const el = document.getElementById("profileEditStatus");
@@ -88,10 +152,61 @@ async function route() {
   await render();
 }
 
+signInBtn?.addEventListener("click", async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    renderDockSignedInImmediate(result.user);
+    const { slug } = await ensureUserDocument(result.user);
+    setDockProfileLink(slug);
+    saveSessionHint(result.user, slug);
+  } catch (error) {
+    if (authStatus) authStatus.textContent = getFriendlyErrorMessage(error);
+  }
+});
+
+signOutBtn?.addEventListener("click", async () => {
+  try {
+    await signOutIfNeeded();
+    clearSessionHint();
+  } catch (error) {
+    if (authStatus) authStatus.textContent = getFriendlyErrorMessage(error);
+  }
+});
+
 (async () => {
+  const cachedSession = readSessionHint();
+  if (cachedSession) {
+    renderDockSignedInImmediate(
+      {
+        uid: cachedSession.uid,
+        email: cachedSession.email,
+        displayName: cachedSession.displayName,
+      },
+      cachedSession.slug
+    );
+  } else {
+    renderDockSignedOut();
+  }
+
   await auth.authStateReady();
   onAuthStateChanged(auth, async (user) => {
     currentUser = user;
+    if (!user) {
+      clearSessionHint();
+      renderDockSignedOut();
+    } else {
+      renderDockSignedInImmediate(user);
+      saveSessionHint(user);
+      try {
+        const { slug } = await ensureUserDocument(user);
+        saveSessionHint(user, slug);
+        await renderDockSignedIn(user, slug);
+      } catch (error) {
+        console.error(error);
+        if (authStatus) authStatus.textContent = getFriendlyErrorMessage(error);
+      }
+    }
+
     try {
       await route();
     } catch (error) {
@@ -114,6 +229,7 @@ async function render() {
   profileUser = await getUserBySlug(slug);
   if (!profileUser) {
     mount.innerHTML = '<p class="muted">Profile not found.</p>';
+    setDockEditAction(false);
     return;
   }
 
@@ -142,8 +258,7 @@ async function render() {
   const editSection = isOwnProfile
     ? `
     <div class="stack profile-edit-zone">
-      <button type="button" id="profileEditToggleBtn" class="button button-secondary profile-edit-trigger" aria-expanded="false" aria-controls="profileEditPanel">Edit profile</button>
-      <div id="profileEditPanel" hidden style="margin-top: 10px;">
+      <div id="profileEditPanel" hidden>
         <h2 style="margin-top: 0; font-size: 1.15rem;">Edit your profile</h2>
         <p id="profileEditStatus" class="status" style="min-height: 1.25em;"></p>
 
@@ -260,7 +375,6 @@ async function render() {
       </section>
       <div class="profile-bottom-note">
         <p>This page lists verified colleagues I've worked with.</p>
-        <p>Powered by <strong>Referly</strong></p>
       </div>
     </div>
     ${editSection}
@@ -268,20 +382,21 @@ async function render() {
 
   if (isOwnProfile) {
     const profileEditPanel = document.getElementById("profileEditPanel");
-    const profileEditToggleBtn = document.getElementById("profileEditToggleBtn");
     const profileEditOnlyBlocks = Array.from(document.querySelectorAll(".profile-edit-only"));
     const setProfileEditOpen = (open) => {
       profileEditPanel.hidden = !open;
-      profileEditToggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
-      profileEditToggleBtn.textContent = open ? "Done editing" : "Edit profile";
       profileEditOnlyBlocks.forEach((el) => {
         el.hidden = !open;
       });
     };
-    setProfileEditOpen(false);
-    profileEditToggleBtn.addEventListener("click", () => {
-      setProfileEditOpen(profileEditPanel.hidden);
+    setDockEditAction(true, () => {
+      const shouldOpen = profileEditPanel.hidden;
+      setProfileEditOpen(shouldOpen);
+      if (shouldOpen) {
+        profileEditPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     });
+    setProfileEditOpen(false);
 
     document.getElementById("updateNameBtn").addEventListener("click", async () => {
       const btn = document.getElementById("updateNameBtn");
@@ -465,5 +580,7 @@ async function render() {
         }
       });
     });
+  } else {
+    setDockEditAction(false);
   }
 }

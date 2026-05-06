@@ -24,6 +24,11 @@ export function slugify(name) {
     .slice(0, 40);
 }
 
+function generateRandomSlugCandidate() {
+  const randomPart = Math.random().toString(36).slice(2, 10);
+  return slugify(`user-${randomPart}`) || "user";
+}
+
 export function generateToken() {
   if (globalThis.crypto?.randomUUID) {
     return globalThis.crypto.randomUUID().replace(/-/g, "");
@@ -46,13 +51,21 @@ export function getFriendlyErrorMessage(error) {
 export async function ensureUserDocument(user) {
   const existing = await getDoc(doc(db, "usersC", user.uid));
   const existingSlug = existing.exists() ? existing.data().slugF : "";
-  const baseSlug = slugify(user.email || "profile") || "profile";
-  let slug = existingSlug || baseSlug;
+  let slug = existingSlug;
 
   if (!existingSlug) {
-    const slugCheck = await getDocs(query(collection(db, "usersC"), where("slugF", "==", baseSlug), limit(1)));
-    if (!slugCheck.empty && slugCheck.docs[0].id !== user.uid) {
-      slug = `${baseSlug}-${user.uid.slice(0, 6)}`;
+    for (let attempts = 0; attempts < 10; attempts += 1) {
+      const candidate = generateRandomSlugCandidate();
+      const slugCheck = await getDocs(query(collection(db, "usersC"), where("slugF", "==", candidate), limit(1)));
+      if (slugCheck.empty || slugCheck.docs[0].id === user.uid) {
+        slug = candidate;
+        break;
+      }
+    }
+
+    // Fallback with uid suffix in the unlikely event random attempts collide.
+    if (!slug) {
+      slug = `user-${user.uid.slice(0, 8)}`;
     }
   }
 

@@ -126,6 +126,120 @@ a {
   font-weight: var(--weight-bold);
 }
 
+.hero-main-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.account-dock {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 80;
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.account-dock-toggle {
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(58, 47, 37, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--accent-strong);
+  font-size: 1.14rem;
+  font-weight: var(--weight-bold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 40px rgba(36, 28, 20, 0.16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+}
+
+.account-dock-panel {
+  width: min(92vw, 330px);
+  border: 1px solid rgba(58, 47, 37, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+  box-shadow: 0 18px 50px rgba(36, 28, 20, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.account-dock-panel[hidden] {
+  display: none !important;
+}
+
+.account-auth-row {
+  gap: 10px;
+}
+
+.account-status {
+  margin: 2px 0 0;
+  font-size: 0.96rem;
+}
+
+.account-profile-line {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.account-profile-anchor {
+  color: var(--accent);
+  font-weight: var(--weight-semibold);
+  word-break: break-all;
+}
+
+.account-action-link {
+  text-align: center;
+  text-decoration: none;
+}
+
+.panel-wide {
+  grid-column: 1 / -1;
+}
+
+.how-it-works {
+  gap: 10px;
+  border-color: rgba(17, 75, 95, 0.16);
+  background: rgba(220, 238, 243, 0.34);
+}
+
+.how-it-works h2 {
+  margin: 0;
+}
+
+.how-it-works-list {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+
+.home-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding: 14px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.home-footer a {
+  color: var(--muted);
+}
+
 .lede {
   max-width: 52ch;
   font-size: 1.05rem;
@@ -420,7 +534,7 @@ input:focus {
   text-align: center;
   color: var(--muted);
   font-size: 0.95rem;
-  margin-top: 8px;
+  margin-top: clamp(28px, 6vh, 64px);
   padding-top: 20px;
   border-top: 1px solid rgba(58, 47, 37, 0.14);
 }
@@ -443,6 +557,16 @@ input:focus {
 }
 
 @media (max-width: 760px) {
+  .account-dock {
+    top: 12px;
+    right: 12px;
+  }
+
+  .account-dock-toggle {
+    width: 52px;
+    height: 52px;
+  }
+
   .profile-links-wrap {
     justify-content: start;
   }

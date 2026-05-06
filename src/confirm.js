@@ -4,12 +4,42 @@ import {
   provider,
   signInWithPopup,
 } from "./firebase.js?v=2";
-import { approveRequest, ensureUserDocument, getRequestByToken, signOutIfNeeded, getFriendlyErrorMessage } from "./data.js?v=3";
+import {
+  clearSessionHint,
+  initAccountControlsDock,
+  mountAccountControls,
+  readSessionHint,
+  renderFooterLinks,
+  saveSessionHint,
+} from "./ui.js?v=4";
+import { approveRequest, ensureUserDocument, getRequestByToken, signOutIfNeeded, getFriendlyErrorMessage } from "./data.js?v=4";
+
+mountAccountControls({
+  includeProfileLink: true,
+  includeCreateRequest: true,
+  createRequestHref: "/create.html",
+});
+initAccountControlsDock();
+
+renderFooterLinks(document.getElementById("confirmFooter"), [
+  { href: "/privacy.html", label: "Privacy Policy" },
+]);
 
 const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
 const authStatus = document.getElementById("authStatus");
 const requestState = document.getElementById("requestState");
+
+function setHomeProfileLinks(slug) {
+  const path = slug ? `/${slug}` : "/profile.html";
+  const label = slug ? path : "My profile";
+
+  const anchor = document.getElementById("homeProfileUrlAnchor");
+  if (anchor) {
+    anchor.href = path;
+    anchor.textContent = label;
+  }
+}
 
 function getToken() {
   return new URLSearchParams(window.location.search).get("token");
@@ -172,7 +202,13 @@ async function renderRequest(user) {
 
 signInBtn.addEventListener("click", async () => {
   try {
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    authStatus.textContent = `Signed in as ${result.user.displayName || result.user.email}`;
+    signInBtn.classList.add("hidden");
+    signOutBtn.classList.remove("hidden");
+    const { slug } = await ensureUserDocument(result.user);
+    setHomeProfileLinks(slug);
+    saveSessionHint(result.user, slug);
   } catch (error) {
     console.error(error);
     authStatus.textContent = getFriendlyErrorMessage(error);
@@ -182,6 +218,7 @@ signInBtn.addEventListener("click", async () => {
 signOutBtn.addEventListener("click", async () => {
   try {
     await signOutIfNeeded();
+    clearSessionHint();
   } catch (error) {
     console.error(error);
     authStatus.textContent = getFriendlyErrorMessage(error);
@@ -190,7 +227,9 @@ signOutBtn.addEventListener("click", async () => {
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
+    clearSessionHint();
     authStatus.textContent = "Not signed in.";
+    setHomeProfileLinks("");
     signInBtn.classList.remove("hidden");
     signOutBtn.classList.add("hidden");
     try {
@@ -210,12 +249,23 @@ onAuthStateChanged(auth, async (user) => {
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
   authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+  saveSessionHint(user);
 
   try {
-    await ensureUserDocument(user);
+    const { slug } = await ensureUserDocument(user);
+    setHomeProfileLinks(slug);
+    saveSessionHint(user, slug);
     await renderRequest(user);
   } catch (error) {
     console.error(error);
     requestState.innerHTML = `<p class="muted">${getFriendlyErrorMessage(error)}</p>`;
   }
 });
+
+const cachedSession = readSessionHint();
+if (cachedSession) {
+  authStatus.textContent = `Signed in as ${cachedSession.displayName || cachedSession.email}`;
+  setHomeProfileLinks(cachedSession.slug || "");
+  signInBtn.classList.add("hidden");
+  signOutBtn.classList.remove("hidden");
+}

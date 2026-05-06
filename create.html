@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Request</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell narrow">
+      <section class="panel hero">
+        <nav class="top-nav" aria-label="Primary">
+          <a href="/">Home</a>
+          <span>•</span>
+          <a href="/about.html">About</a>
+          <span>•</span>
+          <a href="/privacy.html">Privacy</a>
+        </nav>
+        <p class="eyebrow">Create request</p>
+        <h1>Generate a link</h1>
+        <p class="lede">Fill in the details, share the link, and wait for confirmation.</p>
+      </section>
+
+      <section class="panel">
+        <h2 style="margin-top: 0;">Create request</h2>
+        <form id="requestForm" class="form hidden">
+          <label>
+            Name
+            <input id="toName" type="text" placeholder="Alex Chen" maxlength="120" required />
+          </label>
+          <label>
+            Their role or how you know them
+            <input id="position" type="text" placeholder="e.g. Backend dev on our team" maxlength="120" required />
+          </label>
+          <button type="submit" class="button button-primary">Generate link</button>
+        </form>
+        <div id="requestHint" class="hint">
+          Sign in from the action menu to create a request link.
+        </div>
+        <div id="createdLink" class="result hidden">
+          <p class="result-label">Request link</p>
+          <a id="createdLinkValue" href="#" target="_blank" rel="noreferrer"></a>
+        </div>
+      </section>
+
+      <footer id="createFooter" class="home-footer"></footer>
+    </main>
+
+    <script type="module" src="/src/create.js?v=1"></script>
+  </body>
+</html>
