@@ -223,8 +223,8 @@ input:focus {
 
 .profile-title {
   margin: 0;
-  font-size: clamp(2rem, 5vw, 3.3rem);
-  line-height: 1.02;
+  font-size: clamp(2.8rem, 6vw, 4.1rem);
+  line-height: 1.06;
   letter-spacing: -0.03em;
 }
 
@@ -274,7 +274,7 @@ input:focus {
 
 .references-heading {
   margin: 0;
-  font-size: clamp(1.6rem, 2.4vw, 2rem);
+  font-size: clamp(2rem, 3vw, 2.8rem);
 }
 
 .profile-reference-list {
@@ -303,18 +303,22 @@ input:focus {
 }
 
 .reference-item {
-  padding: 20px 22px;
-  border-radius: 14px;
+  padding: 24px 26px;
+  border-radius: 16px;
+  border-color: rgba(58, 47, 37, 0.1);
+  background: rgba(255, 255, 255, 0.64);
 }
 
 .reference-name {
-  font-size: clamp(1.6rem, 2.9vw, 2.1rem);
-  letter-spacing: -0.02em;
+  font-size: clamp(2.2rem, 3.3vw, 3.2rem);
+  letter-spacing: -0.015em;
+  line-height: 1.06;
 }
 
 .reference-position {
   margin-top: 8px;
-  font-size: 1.15rem;
+  font-size: clamp(1.3rem, 1.6vw, 1.65rem);
+  color: color-mix(in srgb, var(--text) 72%, var(--muted));
 }
 
 .reference-confirmation {
@@ -325,20 +329,44 @@ input:focus {
 }
 
 .reference-confirmation::before {
-  content: "";
+  content: "✓";
   width: 16px;
   height: 16px;
   border-radius: 999px;
-  border: 2px solid color-mix(in srgb, var(--success) 70%, white);
+  border: 2px solid color-mix(in srgb, var(--success) 65%, white);
   box-sizing: border-box;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--success);
 }
 
 .profile-bottom-note {
   text-align: center;
   color: var(--muted);
   font-size: 0.95rem;
-  margin-top: 4px;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(58, 47, 37, 0.14);
+}
+
+.profile-bottom-note p {
+  margin: 0;
+}
+
+.profile-bottom-note p + p {
+  margin-top: 8px;
+}
+
+.profile-edit-zone {
+  margin-top: 8px;
+}
+
+.profile-edit-trigger {
+  justify-self: start;
+  min-width: 180px;
 }
 
 @media (max-width: 760px) {
@@ -360,7 +388,11 @@ input:focus {
   }
 
   .reference-position {
-    font-size: 1.05rem;
+    font-size: 1.02rem;
+  }
+
+  .references-heading {
+    font-size: clamp(1.9rem, 9vw, 2.3rem);
   }
 }
 

@@ -143,9 +143,9 @@ async function render() {
 
   const editSection = isOwnProfile
     ? `
-    <div class="stack" style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid rgba(17, 75, 95, 0.15);">
-      <button type="button" id="profileEditToggleBtn" class="button button-secondary" aria-expanded="false" aria-controls="profileEditPanel">Edit profile</button>
-      <div id="profileEditPanel" hidden style="margin-top: 16px;">
+    <div class="stack profile-edit-zone">
+      <button type="button" id="profileEditToggleBtn" class="button button-secondary profile-edit-trigger" aria-expanded="false" aria-controls="profileEditPanel">Edit profile</button>
+      <div id="profileEditPanel" hidden style="margin-top: 10px;">
         <h2 style="margin-top: 0; font-size: 1.15rem;">Edit your profile</h2>
         <p id="profileEditStatus" class="status" style="min-height: 1.25em;"></p>
 
@@ -240,7 +240,6 @@ async function render() {
 
   mount.innerHTML = `
     ${otherProfileBanner}
-    ${editSection}
     <div class="profile-public-view">
       <header class="profile-headline">
         <h1 id="profileNameHeading" class="profile-title">${escapeHtml(profileUser.name)}</h1>
@@ -252,8 +251,12 @@ async function render() {
       <p class="references-subtitle">People I've worked with who can vouch for my skills, work ethic, and professionalism.</p>
       ${references.length > 0 ? `<div class="stack profile-reference-list" style="gap: 16px;">${refList}</div>` : '<p class="muted profile-empty-state">No confirmed references yet.</p>'}
       </section>
-      <div class="profile-bottom-note">Powered by <strong>Referly</strong></div>
+      <div class="profile-bottom-note">
+        <p>This page lists verified colleagues I've worked with.</p>
+        <p>Powered by <strong>Referly</strong></p>
+      </div>
     </div>
+    ${editSection}
   `;
 
   if (isOwnProfile) {
