@@ -185,18 +185,22 @@ async function render() {
       if (isOwnProfile) {
         return `
     <div class="reference-item" data-ref-id="${escapeHtml(ref.id)}" style="position: relative;">
-      <label class="muted" style="font-size: 0.85rem; display: block;">
-        Reference name
-        <input type="text" class="ref-name-input" value="${escapeHtml(ref.fromUserName || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
-      </label>
-      <label class="muted" style="font-size: 0.85rem; display: block; margin-top: 10px;">
-        Role or how you know them
-        <input type="text" class="ref-position-input" value="${escapeHtml(ref.position || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
-      </label>
+      <p class="reference-name">${escapeHtml(ref.fromUserName || "Anonymous")}</p>
+      <p class="reference-position">${escapeHtml(ref.position)}</p>
       <p class="reference-confirmation" style="margin-top: 10px;">✔ Confirmed ${year}</p>
-      <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
-        <button type="button" class="ref-save-btn button button-secondary">Save reference</button>
-        <button type="button" class="ref-delete-btn button" style="background: #d32f2f; color: white; border: none;">Hide</button>
+      <div class="profile-edit-only" hidden style="margin-top: 14px;">
+        <label class="muted" style="font-size: 0.85rem; display: block;">
+          Reference name
+          <input type="text" class="ref-name-input" value="${escapeHtml(ref.fromUserName || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
+        </label>
+        <label class="muted" style="font-size: 0.85rem; display: block; margin-top: 10px;">
+          Role or how you know them
+          <input type="text" class="ref-position-input" value="${escapeHtml(ref.position || "")}" maxlength="120" style="margin-top: 4px; width: 100%; box-sizing: border-box;" />
+        </label>
+        <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+          <button type="button" class="ref-save-btn button button-secondary">Save reference</button>
+          <button type="button" class="ref-delete-btn button" style="background: #d32f2f; color: white; border: none;">Hide</button>
+        </div>
       </div>
     </div>
   `;
@@ -234,11 +238,16 @@ async function render() {
   if (isOwnProfile) {
     const profileEditPanel = document.getElementById("profileEditPanel");
     const profileEditToggleBtn = document.getElementById("profileEditToggleBtn");
+    const profileEditOnlyBlocks = Array.from(document.querySelectorAll(".profile-edit-only"));
     const setProfileEditOpen = (open) => {
       profileEditPanel.hidden = !open;
       profileEditToggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
       profileEditToggleBtn.textContent = open ? "Done editing" : "Edit profile";
+      profileEditOnlyBlocks.forEach((el) => {
+        el.hidden = !open;
+      });
     };
+    setProfileEditOpen(false);
     profileEditToggleBtn.addEventListener("click", () => {
       setProfileEditOpen(profileEditPanel.hidden);
     });

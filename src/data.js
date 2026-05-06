@@ -6,6 +6,7 @@ import {
   getDocs,
   limit,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -159,24 +160,37 @@ export async function getRequestByToken(token, options = {}) {
 }
 
 export async function approveRequest(requestRecord, currentUser) {
-  const data = requestRecord.data();
-  const createdReference = await addDoc(collection(db, "references"), {
-    fromUserId: currentUser.uid,
-    fromUserEmail: currentUser.email || "",
-    fromUserName: currentUser.displayName || currentUser.email?.split("@")[0] || "Unknown",
-    toUserId: data.fromUserId,
-    toUserEmail: data.fromUserEmail || "",
-    position: data.position,
-    status: "confirmed",
-    createdAt: serverTimestamp(),
-  });
+  const requestRef = requestRecord.ref;
+  const referencesCol = collection(db, "references");
+  const referenceRef = doc(referencesCol);
 
-  await updateDoc(requestRecord.ref, {
-    status: "confirmed",
-    confirmedBy: currentUser.uid,
-    confirmedAt: serverTimestamp(),
-    referenceId: createdReference.id,
-    toUserId: currentUser.uid,
+  await runTransaction(db, async (tx) => {
+    const latestRequestSnap = await tx.get(requestRef);
+    if (!latestRequestSnap.exists()) throw new Error("Request not found.");
+
+    const latestData = latestRequestSnap.data();
+    if (latestData.status !== "pending") {
+      throw new Error("This request is already confirmed.");
+    }
+
+    tx.set(referenceRef, {
+      fromUserId: currentUser.uid,
+      fromUserEmail: currentUser.email || "",
+      fromUserName: currentUser.displayName || currentUser.email?.split("@")[0] || "Unknown",
+      toUserId: latestData.fromUserId,
+      toUserEmail: latestData.fromUserEmail || "",
+      position: latestData.position,
+      status: "confirmed",
+      createdAt: serverTimestamp(),
+    });
+
+    tx.update(requestRef, {
+      status: "confirmed",
+      confirmedBy: currentUser.uid,
+      confirmedAt: serverTimestamp(),
+      referenceId: referenceRef.id,
+      toUserId: currentUser.uid,
+    });
   });
 }
 
