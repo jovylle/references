@@ -237,9 +237,9 @@ async function render() {
       ? `<div class="profile-links-wrap">
         <p class="profile-links-kicker">View my work</p>
         <div class="profile-links">
-        ${portfolioHref ? `<a href="${escapeHtml(portfolioHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">Portfolio <span class="external-link-icon" aria-hidden="true">↗</span></a>` : ""}
-        ${githubHref ? `<a href="${escapeHtml(githubHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">GitHub <span class="external-link-icon" aria-hidden="true">↗</span></a>` : ""}
-        ${linkedinHref ? `<a href="${escapeHtml(linkedinHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">LinkedIn <span class="external-link-icon" aria-hidden="true">↗</span></a>` : ""}
+        ${portfolioHref ? `<a href="${escapeHtml(portfolioHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">Portfolio <span class="external-link-icon" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M11 4h5v5M10 10l6-6M16 11v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path></svg></span></a>` : ""}
+        ${githubHref ? `<a href="${escapeHtml(githubHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">GitHub <span class="external-link-icon" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M11 4h5v5M10 10l6-6M16 11v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path></svg></span></a>` : ""}
+        ${linkedinHref ? `<a href="${escapeHtml(linkedinHref)}" target="_blank" rel="noreferrer" class="profile-link-chip">LinkedIn <span class="external-link-icon" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M11 4h5v5M10 10l6-6M16 11v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path></svg></span></a>` : ""}
         </div>
       </div>`
       : "";

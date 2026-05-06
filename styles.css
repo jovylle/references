@@ -1,6 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap");
+
 :root {
   color-scheme: light;
-  /* Theme tokens: update these for global styling */
+
+  /* Brand palette: set your color scheme here */
   --bg: #f4f1ea;
   --bg-deep: #ebe4d8;
   --panel: rgba(255, 255, 255, 0.78);
@@ -11,15 +14,33 @@
   --accent-strong: #0c3441;
   --accent-soft: #dceef3;
   --success: #1f6b45;
-  --shadow: 0 20px 60px rgba(36, 28, 20, 0.1);
   --focus-ring: rgba(17, 75, 95, 0.24);
+
+  /* Typography: set primary fonts and emphasis */
   --font-body: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-heading: "Poppins", "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --radius-panel: 24px;
-  --radius-control: 14px;
   --weight-regular: 400;
   --weight-semibold: 600;
   --weight-bold: 700;
+
+  /* Shape and spacing language */
+  --radius-panel: 24px;
+  --radius-control: 14px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+
+  /* Effects */
+  --shadow: 0 20px 60px rgba(36, 28, 20, 0.1);
+
+  /* Component tokens */
+  --external-icon-bg: color-mix(in srgb, var(--accent-soft) 72%, white);
+  --external-icon-border: color-mix(in srgb, var(--accent) 24%, white);
+  --external-icon-fg: var(--accent-strong);
 }
 
 * {
@@ -46,6 +67,12 @@ a {
   color: var(--accent);
   text-decoration-thickness: 0.12em;
   text-underline-offset: 0.14em;
+}
+
+.link-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .shell {
@@ -297,18 +324,25 @@ input:focus {
 
 .external-link-icon {
   display: inline-flex;
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.26rem;
+  height: 1.26rem;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--accent-soft) 70%, white);
-  border: 1px solid color-mix(in srgb, var(--accent) 26%, white);
-  color: var(--accent-strong);
-  font-size: 0.78rem;
-  line-height: 1;
-  font-weight: var(--weight-bold);
-  transform: translateY(-0.02em);
+  background: var(--external-icon-bg);
+  border: 1px solid var(--external-icon-border);
+  color: var(--external-icon-fg);
+  transform: translateY(-0.01em);
+}
+
+.external-link-icon svg {
+  width: 0.82rem;
+  height: 0.82rem;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
 .references-heading {
