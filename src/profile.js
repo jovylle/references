@@ -27,12 +27,12 @@ const RESERVED_PATHS = new Set([
 function getSlug() {
   const params = new URLSearchParams(window.location.search);
   const slug = params.get("slug");
-  if (slug) return slug;
+  if (slug) return slug.trim().toLowerCase();
 
   const segments = window.location.pathname.split("/").filter(Boolean);
   const first = (segments[0] || "").toLowerCase();
   if (!first || RESERVED_PATHS.has(first)) return "";
-  return segments[0];
+  return first;
 }
 
 function escapeHtml(value) {
@@ -71,15 +71,18 @@ async function route() {
   await render();
 }
 
-onAuthStateChanged(auth, async (user) => {
-  currentUser = user;
-  try {
-    await route();
-  } catch (error) {
-    console.error(error);
-    profileState.innerHTML = `<p class="muted">${escapeHtml(getFriendlyErrorMessage(error))}</p>`;
-  }
-});
+(async () => {
+  await auth.authStateReady();
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    try {
+      await route();
+    } catch (error) {
+      console.error(error);
+      profileState.innerHTML = `<p class="muted">${escapeHtml(getFriendlyErrorMessage(error))}</p>`;
+    }
+  });
+})();
 
 async function render() {
   const slug = getSlug();
@@ -100,6 +103,11 @@ async function render() {
   }
 
   const isOwnProfile = Boolean(currentUser && currentUser.uid === profileUser.id);
+
+  let guestBanner = "";
+  if (!currentUser) {
+    guestBanner = `<p class="muted" style="margin: 0 0 20px; padding: 12px 14px; background: rgba(17, 75, 95, 0.06); border-radius: 8px;">To edit your name and settings, <a href="/">sign in on the home page</a> with the Google account that owns this profile link.</p>`;
+  }
 
   let otherProfileBanner = "";
   if (currentUser && !isOwnProfile) {
@@ -203,6 +211,7 @@ async function render() {
       : "";
 
   profileState.innerHTML = `
+    ${guestBanner}
     ${otherProfileBanner}
     ${editSection}
     <div>
