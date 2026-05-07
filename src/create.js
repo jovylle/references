@@ -36,10 +36,16 @@ renderFooterLinks(document.getElementById("createFooter"), [
 const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
 const authStatus = document.getElementById("authStatus");
+const createRequestLink = document.getElementById("accountCreateRequestLink");
 const requestForm = document.getElementById("requestForm");
 const requestHint = document.getElementById("requestHint");
 const createdLink = document.getElementById("createdLink");
 const createdLinkValue = document.getElementById("createdLinkValue");
+
+function setCreateRequestVisibility(visible) {
+  if (!createRequestLink) return;
+  createRequestLink.classList.toggle("hidden", !visible);
+}
 
 function setProfileLink(slug) {
   const path = slug ? `/${slug}` : "/profile.html";
@@ -52,6 +58,7 @@ function setProfileLink(slug) {
 }
 
 function renderSignedOut() {
+  setCreateRequestVisibility(false);
   requestForm.classList.add("hidden");
   requestHint.classList.remove("hidden");
   signInBtn.classList.remove("hidden");
@@ -61,6 +68,7 @@ function renderSignedOut() {
 }
 
 async function renderSignedIn(user, slug) {
+  setCreateRequestVisibility(true);
   requestForm.classList.remove("hidden");
   requestHint.classList.add("hidden");
   signInBtn.classList.add("hidden");
@@ -73,6 +81,7 @@ async function renderSignedIn(user, slug) {
 }
 
 function renderSignedInImmediate(user, slug = "") {
+  setCreateRequestVisibility(true);
   requestForm.classList.remove("hidden");
   requestHint.classList.add("hidden");
   signInBtn.classList.add("hidden");
@@ -169,4 +178,6 @@ if (cachedSession) {
     },
     cachedSession.slug
   );
+} else {
+  setCreateRequestVisibility(false);
 }

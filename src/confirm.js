@@ -37,7 +37,13 @@ renderFooterLinks(document.getElementById("confirmFooter"), [
 const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
 const authStatus = document.getElementById("authStatus");
+const createRequestLink = document.getElementById("accountCreateRequestLink");
 const requestState = document.getElementById("requestState");
+
+function setCreateRequestVisibility(visible) {
+  if (!createRequestLink) return;
+  createRequestLink.classList.toggle("hidden", !visible);
+}
 
 function setHomeProfileLinks(slug) {
   const path = slug ? `/${slug}` : "/profile.html";
@@ -265,6 +271,7 @@ signOutBtn.addEventListener("click", async () => {
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
+    setCreateRequestVisibility(false);
     clearSessionHint();
     authStatus.textContent = "Not signed in.";
     setHomeProfileLinks("");
@@ -284,6 +291,7 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  setCreateRequestVisibility(true);
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
   const profile = await getUserById(user.uid);
@@ -304,9 +312,12 @@ onAuthStateChanged(auth, async (user) => {
 
 const cachedSession = readSessionHint();
 if (cachedSession) {
+  setCreateRequestVisibility(true);
   const fallbackName = cachedSession.email?.split("@")[0] || cachedSession.email || "Unknown";
   authStatus.textContent = `Signed in as ${fallbackName}`;
   setHomeProfileLinks(cachedSession.slug || "");
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
+} else {
+  setCreateRequestVisibility(false);
 }

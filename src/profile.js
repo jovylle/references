@@ -82,10 +82,16 @@ const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
 const authStatus = document.getElementById("authStatus");
 const homeProfileUrlLine = document.getElementById("homeProfileUrlLine");
+const createRequestLink = document.getElementById("accountCreateRequestLink");
 
 function setProfileLinkVisibility(visible) {
   if (!homeProfileUrlLine) return;
   homeProfileUrlLine.classList.toggle("hidden", !visible);
+}
+
+function setCreateRequestVisibility(visible) {
+  if (!createRequestLink) return;
+  createRequestLink.classList.toggle("hidden", !visible);
 }
 
 function setDockProfileLink(slug) {
@@ -112,6 +118,7 @@ function setDockEditAction(visible, onClick = null) {
 
 function renderDockSignedOut() {
   setProfileLinkVisibility(false);
+  setCreateRequestVisibility(false);
   if (signInBtn) signInBtn.classList.remove("hidden");
   if (signOutBtn) signOutBtn.classList.add("hidden");
   if (authStatus) authStatus.textContent = "Not signed in.";
@@ -121,6 +128,7 @@ function renderDockSignedOut() {
 
 function renderDockSignedInImmediate(user, slug = "") {
   setProfileLinkVisibility(true);
+  setCreateRequestVisibility(true);
   if (signInBtn) signInBtn.classList.add("hidden");
   if (signOutBtn) signOutBtn.classList.remove("hidden");
   const fallbackName = user.email?.split("@")[0] || user.email || "Unknown";
