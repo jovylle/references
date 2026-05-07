@@ -12,6 +12,10 @@ Static frontend for a Google-authenticated reference request flow using Firebase
 - Open `http://localhost:8888`
 - Avoid `python -m http.server` for route testing; it does not apply `_redirects`.
 
+
+
+
+
 ## Files
 
 - `index.html` main request creation app
