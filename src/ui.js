@@ -69,9 +69,11 @@ export function accountControlsTemplate({
         }
         ${
           includeProfileLink
-            ? `<p id="homeProfileUrlLine" class="muted account-profile-line">
-                Profile link: <a id="homeProfileUrlAnchor" href="/profile.html" class="account-profile-anchor">My profile</a>
-              </p>`
+            ? `<div id="homeProfileUrlLine" class="account-profile-line">
+                <span class="account-profile-label">Profile link:</span>
+                <a id="homeProfileUrlAnchor" href="/profile.html" class="account-profile-anchor">My profile</a>
+                <button id="accountCopyProfileLinkBtn" type="button" class="button button-secondary account-copy-button">Copy link</button>
+              </div>`
             : ""
         }
         ${
@@ -95,13 +97,77 @@ export function initAccountControlsDock({ defaultCollapsed = true } = {}) {
   const dock = document.getElementById("accountDock");
   const toggleBtn = document.getElementById("accountDockToggleBtn");
   const panel = document.getElementById("accountDockPanel");
+  const profileLinkAnchor = document.getElementById("homeProfileUrlAnchor");
+  const copyProfileLinkBtn = document.getElementById("accountCopyProfileLinkBtn");
   if (!dock || !toggleBtn || !panel) return;
+
+  /** @type {HTMLElement | null} */
+  let previousFocusedElement = null;
+
+  const getFocusableInPanel = () => {
+    return Array.from(
+      panel.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute("hidden"));
+  };
 
   const setCollapsed = (collapsed) => {
     dock.classList.toggle("is-collapsed", collapsed);
     panel.hidden = collapsed;
     toggleBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
     toggleBtn.setAttribute("aria-label", collapsed ? "Open main actions" : "Close main actions");
+
+    if (collapsed) {
+      if (previousFocusedElement && previousFocusedElement.isConnected) {
+        previousFocusedElement.focus();
+      } else {
+        toggleBtn.focus();
+      }
+      previousFocusedElement = null;
+      return;
+    }
+
+    previousFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusables = getFocusableInPanel();
+    if (focusables.length > 0) {
+      focusables[0].focus();
+    }
+  };
+
+  const setCopyFeedback = (message) => {
+    if (!copyProfileLinkBtn) return;
+    copyProfileLinkBtn.textContent = message;
+    globalThis.setTimeout(() => {
+      copyProfileLinkBtn.textContent = "Copy link";
+    }, 1200);
+  };
+
+  const copyText = async (text) => {
+    if (!text) return false;
+    try {
+      if (globalThis.navigator?.clipboard?.writeText) {
+        await globalThis.navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (_error) {
+      // Continue to fallback.
+    }
+
+    try {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      const copied = document.execCommand("copy");
+      document.body.removeChild(area);
+      return copied;
+    } catch (_error) {
+      return false;
+    }
   };
 
   setCollapsed(defaultCollapsed);
@@ -113,6 +179,29 @@ export function initAccountControlsDock({ defaultCollapsed = true } = {}) {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       setCollapsed(true);
+      return;
+    }
+
+    if (event.key !== "Tab" || dock.classList.contains("is-collapsed")) {
+      return;
+    }
+
+    const focusables = getFocusableInPanel();
+    if (focusables.length === 0) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement;
+
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+      return;
+    }
+
+    if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
     }
   });
 
@@ -121,6 +210,12 @@ export function initAccountControlsDock({ defaultCollapsed = true } = {}) {
     if (!dock.contains(event.target)) {
       setCollapsed(true);
     }
+  });
+
+  copyProfileLinkBtn?.addEventListener("click", async () => {
+    const profileHref = profileLinkAnchor?.href || "";
+    const copied = await copyText(profileHref);
+    setCopyFeedback(copied ? "Copied!" : "Copy failed");
   });
 
   return { setCollapsed };

@@ -148,9 +148,15 @@ export async function getUserBySlug(slug) {
 
 export async function createRequest(user, toName, position) {
   const token = generateToken();
+  const userSnap = await getDoc(doc(db, "usersC", user.uid));
+  const profileName = userSnap.exists() ? String(userSnap.data()?.nameF || "").trim() : "";
+  const fallbackName = (user.displayName || user.email?.split("@")[0] || "Unknown").trim();
+  const fromUserName = profileName || fallbackName;
+
   const ref = await addDoc(collection(db, "requestsC"), {
     fromUserIdF: user.uid,
     fromUserEmailF: user.email || "",
+    fromUserNameF: fromUserName,
     toNameF: toName,
     positionF: position,
     tokenF: token,
@@ -203,7 +209,7 @@ export async function approveRequest(requestRecord, currentUser) {
       requestIdF: requestRecord.id,
       fromUserIdF: currentUser.uid,
       fromUserEmailF: currentUser.email || "",
-      fromUserNameF: currentUser.email?.split("@")[0] || "Unknown",
+      fromUserNameF: latestData.toNameF || currentUser.email?.split("@")[0] || "Unknown",
       toUserIdF: latestData.fromUserIdF,
       toUserEmailF: latestData.fromUserEmailF || "",
       positionF: latestData.positionF,

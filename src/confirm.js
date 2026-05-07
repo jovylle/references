@@ -11,8 +11,15 @@ import {
   readSessionHint,
   renderFooterLinks,
   saveSessionHint,
-} from "./ui.js?v=4";
-import { approveRequest, ensureUserDocument, getRequestByToken, signOutIfNeeded, getFriendlyErrorMessage } from "./data.js?v=4";
+} from "./ui.js?v=6";
+import {
+  approveRequest,
+  ensureUserDocument,
+  getRequestByToken,
+  getUserById,
+  signOutIfNeeded,
+  getFriendlyErrorMessage,
+} from "./data.js?v=5";
 
 mountAccountControls({
   includeProfileLink: true,
@@ -22,6 +29,8 @@ mountAccountControls({
 initAccountControlsDock();
 
 renderFooterLinks(document.getElementById("confirmFooter"), [
+  { href: "/", label: "Home" },
+  { href: "/about.html", label: "About" },
   { href: "/privacy.html", label: "Privacy Policy" },
 ]);
 
@@ -52,7 +61,30 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
-/** Name + position only; no confirm until signed in. */
+function getRequesterName(data) {
+  const fromName = String(data?.fromUserNameF || "").trim();
+  if (fromName) return fromName;
+
+  const fromEmail = String(data?.fromUserEmailF || "").trim();
+  if (fromEmail) return fromEmail.split("@")[0];
+
+  return "Unknown";
+}
+
+function requesterMetaTemplate(data) {
+  const requesterName = getRequesterName(data);
+  const requesterEmail = String(data?.fromUserEmailF || "").trim();
+
+  return `
+    <div class="requester-meta">
+      <p class="requester-meta-label">Requested by</p>
+      <p class="requester-meta-name">${escapeHtml(requesterName)}</p>
+      ${requesterEmail ? `<p class="requester-meta-email">${escapeHtml(requesterEmail)}</p>` : ""}
+    </div>
+  `;
+}
+
+/** Request preview only; no confirm until signed in. */
 async function renderSignedOutRequest() {
   const token = getToken();
   if (!token) {
@@ -82,6 +114,7 @@ async function renderSignedOutRequest() {
   const data = requestRecord.data();
   requestState.innerHTML = `
     <div class="stack">
+      ${requesterMetaTemplate(data)}
       <p class="reference-name">${escapeHtml(data.toNameF)}</p>
       <p class="reference-position">${escapeHtml(data.positionF)}</p>
       <p class="muted" style="margin-top: 16px;">Sign in with Google above to confirm. You can’t complete this step until you’re signed in.</p>
@@ -108,6 +141,7 @@ async function renderRequest(user) {
   if (data.statusF === "confirmed") {
     requestState.innerHTML = `
       <div class="stack">
+        ${requesterMetaTemplate(data)}
         <p class="reference-name">${escapeHtml(data.toNameF)}</p>
         <p class="reference-position">${escapeHtml(data.positionF)}</p>
         <p class="reference-confirmation">✔ Already confirmed</p>
@@ -119,6 +153,7 @@ async function renderRequest(user) {
 
   requestState.innerHTML = `
     <div class="stack">
+      ${requesterMetaTemplate(data)}
       <p class="reference-name">${escapeHtml(data.toNameF)}</p>
       <p class="reference-position">${escapeHtml(data.positionF)}</p>
       <p class="muted">Tap confirm if this is what you agreed to.</p>
@@ -134,6 +169,7 @@ async function renderRequest(user) {
       await approveRequest(requestRecord, user);
       requestState.innerHTML = `
         <div class="stack">
+          ${requesterMetaTemplate(data)}
           <p class="reference-name">${escapeHtml(data.toNameF)}</p>
           <p class="reference-position">${escapeHtml(data.positionF)}</p>
           <p class="reference-confirmation">✔ Confirmed</p>
@@ -203,10 +239,12 @@ async function renderRequest(user) {
 signInBtn.addEventListener("click", async () => {
   try {
     const result = await signInWithPopup(auth, provider);
-    authStatus.textContent = `Signed in as ${result.user.displayName || result.user.email}`;
     signInBtn.classList.add("hidden");
     signOutBtn.classList.remove("hidden");
     const { slug } = await ensureUserDocument(result.user);
+    const profile = await getUserById(result.user.uid);
+    const resolvedName = String(profile?.nameF || "").trim() || result.user.email?.split("@")[0] || result.user.email || "Unknown";
+    authStatus.textContent = `Signed in as ${resolvedName}`;
     setHomeProfileLinks(slug);
     saveSessionHint(result.user, slug);
   } catch (error) {
@@ -248,7 +286,9 @@ onAuthStateChanged(auth, async (user) => {
 
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
-  authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+  const profile = await getUserById(user.uid);
+  const resolvedName = String(profile?.nameF || "").trim() || user.email?.split("@")[0] || user.email || "Unknown";
+  authStatus.textContent = `Signed in as ${resolvedName}`;
   saveSessionHint(user);
 
   try {
@@ -264,7 +304,8 @@ onAuthStateChanged(auth, async (user) => {
 
 const cachedSession = readSessionHint();
 if (cachedSession) {
-  authStatus.textContent = `Signed in as ${cachedSession.displayName || cachedSession.email}`;
+  const fallbackName = cachedSession.email?.split("@")[0] || cachedSession.email || "Unknown";
+  authStatus.textContent = `Signed in as ${fallbackName}`;
   setHomeProfileLinks(cachedSession.slug || "");
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");

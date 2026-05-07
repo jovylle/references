@@ -5,7 +5,7 @@ import {
   mountAccountControls,
   readSessionHint,
   saveSessionHint,
-} from "./ui.js?v=4";
+} from "./ui.js?v=6";
 import {
   ensureUserDocument,
   getReferences,
@@ -19,7 +19,7 @@ import {
   updateUserLinks,
   signOutIfNeeded,
   getFriendlyErrorMessage,
-} from "./data.js?v=4";
+} from "./data.js?v=5";
 
 const RESERVED_PATHS = new Set([
   "profile",
@@ -115,13 +115,17 @@ function renderDockSignedOut() {
 function renderDockSignedInImmediate(user, slug = "") {
   if (signInBtn) signInBtn.classList.add("hidden");
   if (signOutBtn) signOutBtn.classList.remove("hidden");
-  if (authStatus) authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+  const fallbackName = user.email?.split("@")[0] || user.email || "Unknown";
+  if (authStatus) authStatus.textContent = `Signed in as ${fallbackName}`;
   if (slug) setDockProfileLink(slug);
 }
 
 async function renderDockSignedIn(user, slug = "") {
   renderDockSignedInImmediate(user, slug);
-  const resolvedSlug = slug || (await getUserById(user.uid))?.slugF || "";
+  const profile = await getUserById(user.uid);
+  const resolvedName = String(profile?.nameF || "").trim() || user.email?.split("@")[0] || user.email || "Unknown";
+  if (authStatus) authStatus.textContent = `Signed in as ${resolvedName}`;
+  const resolvedSlug = slug || profile?.slugF || "";
   setDockProfileLink(resolvedSlug);
 }
 

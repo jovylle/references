@@ -11,13 +11,13 @@ import {
   readSessionHint,
   renderFooterLinks,
   saveSessionHint,
-} from "./ui.js?v=4";
+} from "./ui.js?v=6";
 import {
   ensureUserDocument,
   signOutIfNeeded,
   getFriendlyErrorMessage,
   getUserById,
-} from "./data.js?v=4";
+} from "./data.js?v=5";
 
 mountAccountControls({
   includeProfileLink: true,
@@ -57,16 +57,18 @@ function renderSignedOut() {
 async function renderSignedIn(user, slug) {
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
-  authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
-
-  const resolvedSlug = slug || (await getUserById(user.uid))?.slugF || "";
+  const profile = await getUserById(user.uid);
+  const resolvedName = String(profile?.nameF || "").trim() || user.email?.split("@")[0] || user.email || "Unknown";
+  authStatus.textContent = `Signed in as ${resolvedName}`;
+  const resolvedSlug = slug || profile?.slugF || "";
   setHomeProfileLinks(resolvedSlug);
 }
 
 function renderSignedInImmediate(user, slug = "") {
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
-  authStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+  const fallbackName = user.email?.split("@")[0] || user.email || "Unknown";
+  authStatus.textContent = `Signed in as ${fallbackName}`;
   if (slug) {
     setHomeProfileLinks(slug);
   }

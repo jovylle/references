@@ -189,13 +189,56 @@ a {
 
 .account-profile-line {
   margin: 0;
-  font-size: 0.95rem;
+  padding: 10px 10px 10px 12px;
+  border: 1px solid rgba(58, 47, 37, 0.12);
+  border-radius: 12px;
+  background: rgba(220, 238, 243, 0.28);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.account-profile-label {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-weight: var(--weight-semibold);
+  flex-shrink: 0;
 }
 
 .account-profile-anchor {
-  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, white);
+  background: color-mix(in srgb, var(--accent-soft) 72%, white);
+  color: var(--accent-strong);
   font-weight: var(--weight-semibold);
-  word-break: break-all;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.account-profile-anchor:hover {
+  background: color-mix(in srgb, var(--accent-soft) 88%, white);
+  text-decoration: underline;
+}
+
+.account-copy-button {
+  padding: 8px 12px;
+  min-height: 34px;
+  font-size: 0.87rem;
+  font-weight: var(--weight-semibold);
+  border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .account-action-link {
@@ -528,6 +571,37 @@ input:focus {
   font-size: 0.62rem;
   font-weight: 800;
   color: var(--success);
+}
+
+.requester-meta {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(58, 47, 37, 0.12);
+  border-radius: 12px;
+  background: rgba(220, 238, 243, 0.24);
+}
+
+.requester-meta-label {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: var(--weight-semibold);
+}
+
+.requester-meta-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+}
+
+.requester-meta-email {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 .profile-bottom-note {

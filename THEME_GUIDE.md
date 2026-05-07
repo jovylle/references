@@ -19,6 +19,17 @@ Use this file as the source of truth for visual consistency.
 - **Corners:** controls use `--radius-control`; panels/cards use `--radius-panel`.
 - **Links/icons:** use `external-link-icon` for outbound links to keep icon style consistent.
 
+## Account Dock UI rules
+
+- Keep the dock as the single top-right action hub (`sign in/out`, `create request`, `profile link`, optional `edit profile`).
+- Keep primary actions as full-width buttons inside the dock panel.
+- Render `Profile link` as a two-part block:
+  - inline label (`Profile link:`)
+  - truncated clickable slug (`account-profile-anchor`)
+  - `Copy link` button (`account-copy-button`)
+- Keep this as one row inside `account-profile-line`.
+- Truncate long slugs with ellipsis; never allow the row to break layout.
+
 ## Component styling locations
 
 - Shared app styles: `styles.css`
