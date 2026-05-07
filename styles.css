@@ -583,11 +583,42 @@ input:focus {
   align-items: center;
   justify-content: center;
   font-weight: var(--weight-bold);
-  cursor: help;
+  cursor: default;
+  position: relative;
 }
 
 .reference-confirmation-icon::before {
   content: none;
+}
+
+.reference-confirmation-icon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(4px);
+  min-width: 220px;
+  max-width: 280px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(30, 28, 26, 0.95);
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+  z-index: 20;
+}
+
+.reference-confirmation-icon:hover::after,
+.reference-confirmation-icon:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 .requester-meta {

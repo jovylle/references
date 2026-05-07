@@ -337,8 +337,9 @@ async function render() {
       <p
         class="reference-confirmation reference-confirmation-icon"
         style="margin-top: 10px;"
-        title="Mutual confirmation: this person accepted and acknowledged this reference."
+        data-tooltip="Mutual confirmation: this person accepted and acknowledged this reference."
         aria-label="Mutually confirmed reference"
+        tabindex="0"
       >
         <span aria-hidden="true">✔</span>
       </p>
@@ -365,8 +366,9 @@ async function render() {
       <p class="reference-position">${escapeHtml(ref.positionF)}</p>
       <p
         class="reference-confirmation reference-confirmation-icon"
-        title="Mutual confirmation: this person accepted and acknowledged this reference."
+        data-tooltip="Mutual confirmation: this person accepted and acknowledged this reference."
         aria-label="Mutually confirmed reference"
+        tabindex="0"
       >
         <span aria-hidden="true">✔</span>
       </p>
