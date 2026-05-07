@@ -329,13 +329,19 @@ async function render() {
 
   const refList = references
     .map((ref) => {
-      const year = ref.createdAtF?.toDate?.().getFullYear?.() || new Date().getFullYear();
       if (isOwnProfile) {
         return `
     <div class="reference-item" data-ref-id="${escapeHtml(ref.id)}" style="position: relative;">
       <p class="reference-name">${escapeHtml(ref.fromUserNameF || "Anonymous")}</p>
       <p class="reference-position">${escapeHtml(ref.positionF)}</p>
-      <p class="reference-confirmation" style="margin-top: 10px;">✔ Confirmed ${year}</p>
+      <p
+        class="reference-confirmation reference-confirmation-icon"
+        style="margin-top: 10px;"
+        title="Mutual confirmation: this person accepted and acknowledged this reference."
+        aria-label="Mutually confirmed reference"
+      >
+        <span aria-hidden="true">✔</span>
+      </p>
       <div class="profile-edit-only" hidden style="margin-top: 14px;">
         <label class="muted" style="font-size: 0.85rem; display: block;">
           Reference name
@@ -357,7 +363,13 @@ async function render() {
     <div class="reference-item" style="position: relative;">
       <p class="reference-name">${escapeHtml(ref.fromUserNameF || "Anonymous")}</p>
       <p class="reference-position">${escapeHtml(ref.positionF)}</p>
-      <p class="reference-confirmation">✔ Confirmed ${year}</p>
+      <p
+        class="reference-confirmation reference-confirmation-icon"
+        title="Mutual confirmation: this person accepted and acknowledged this reference."
+        aria-label="Mutually confirmed reference"
+      >
+        <span aria-hidden="true">✔</span>
+      </p>
     </div>
   `;
     })

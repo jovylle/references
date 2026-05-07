@@ -573,6 +573,23 @@ input:focus {
   color: var(--success);
 }
 
+.reference-confirmation-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 107, 69, 0.26);
+  background: rgba(31, 107, 69, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--weight-bold);
+  cursor: help;
+}
+
+.reference-confirmation-icon::before {
+  content: none;
+}
+
 .requester-meta {
   display: grid;
   gap: 4px;
