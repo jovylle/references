@@ -11,7 +11,7 @@ import {
   readSessionHint,
   renderFooterLinks,
   saveSessionHint,
-} from "./ui.js?v=6";
+} from "./ui.js?v=7";
 import {
   approveRequest,
   ensureUserDocument,

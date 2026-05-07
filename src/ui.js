@@ -41,6 +41,25 @@ export function clearSessionHint() {
   } catch (_error) {
     // Ignore storage issues.
   }
+
+  try {
+    const sessionStore = globalThis.sessionStorage;
+    if (!sessionStore) return;
+
+    const keysToRemove = [];
+    for (let index = 0; index < sessionStore.length; index += 1) {
+      const key = sessionStore.key(index);
+      if (key && key.startsWith("referly:")) {
+        keysToRemove.push(key);
+      }
+    }
+
+    keysToRemove.forEach((key) => {
+      sessionStore.removeItem(key);
+    });
+  } catch (_error) {
+    // Ignore storage issues.
+  }
 }
 
 export function accountControlsTemplate({

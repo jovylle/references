@@ -5,7 +5,7 @@ import {
   mountAccountControls,
   readSessionHint,
   saveSessionHint,
-} from "./ui.js?v=6";
+} from "./ui.js?v=7";
 import {
   ensureUserDocument,
   getReferences,
