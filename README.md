@@ -35,6 +35,21 @@ Static frontend for a Google-authenticated reference request flow using Firebase
 4. Paste your Firebase config into `src/firebase-config.js`.
 5. Deploy the static files to Netlify.
 
+## Environment Model (Single Cloud Project)
+
+For now this repo uses a single cloud Firebase project (`referly-59bf0`) and team discipline for safe testing.
+
+- Use test Google accounts only for testing.
+- Keep test records clearly marked (e.g. `[TEST]` prefixes).
+- Clean up test records regularly.
+- Treat all cloud changes as production-impacting.
+
+Deploy Firestore config:
+
+- `firebase deploy --project prod --only firestore:rules,firestore:indexes`
+
+See `ENVIRONMENT.md` for the team safety SOP and release checklist.
+
 ## Routes
 
 - `/` app home

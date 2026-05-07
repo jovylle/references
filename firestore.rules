@@ -1,32 +1,141 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isShortText(value, maxLen) {
+      return value is string && value.size() > 0 && value.size() <= maxLen;
+    }
+
+    function isOptionalShortText(value, maxLen) {
+      return value == null || (value is string && value.size() <= maxLen);
+    }
+
+    function isValidReferenceStatus(value) {
+      return value in ["confirmed", "hidden"];
+    }
+
     match /usersC/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if isOwner(userId);
     }
 
     match /referencesC/{refId} {
       allow read: if true;
-      allow create: if request.auth != null;
+      // Path A: request confirmation writes deterministic reference doc (id == request id).
+      // Path B: reciprocal add writes onto the signed-in user's own profile.
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          "requestIdF",
+          "fromUserIdF",
+          "fromUserEmailF",
+          "fromUserNameF",
+          "toUserIdF",
+          "toUserEmailF",
+          "positionF",
+          "statusF",
+          "createdAtF"
+        ])
+        && isShortText(request.resource.data.fromUserIdF, 128)
+        && isOptionalShortText(request.resource.data.fromUserEmailF, 254)
+        && isShortText(request.resource.data.fromUserNameF, 120)
+        && isShortText(request.resource.data.toUserIdF, 128)
+        && isOptionalShortText(request.resource.data.toUserEmailF, 254)
+        && isShortText(request.resource.data.positionF, 120)
+        && request.resource.data.statusF == "confirmed"
+        && (
+          (
+            request.resource.data.requestIdF == refId
+            && exists(/databases/$(database)/documents/requestsC/$(refId))
+            && get(/databases/$(database)/documents/requestsC/$(refId)).data.statusF == "pending"
+            && request.auth.uid == request.resource.data.fromUserIdF
+            && request.resource.data.toUserIdF == get(/databases/$(database)/documents/requestsC/$(refId)).data.fromUserIdF
+            && request.resource.data.positionF == get(/databases/$(database)/documents/requestsC/$(refId)).data.positionF
+          )
+          || (
+            request.resource.data.toUserIdF == request.auth.uid
+          )
+        );
       allow delete: if false;
-      // Profile owner may adjust how a reference appears, or hide it.
-      allow update: if request.auth != null
+      // Profile owner may adjust visible fields or hide a reference.
+      allow update: if isSignedIn()
         && resource.data.toUserIdF == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          "requestIdF",
+          "fromUserIdF",
+          "fromUserEmailF",
+          "fromUserNameF",
+          "toUserIdF",
+          "toUserEmailF",
+          "positionF",
+          "statusF",
+          "createdAtF"
+        ])
         && request.resource.data.fromUserIdF == resource.data.fromUserIdF
         && request.resource.data.toUserIdF == resource.data.toUserIdF
         && request.resource.data.fromUserEmailF == resource.data.fromUserEmailF
-        && request.resource.data.toUserEmailF == resource.data.toUserEmailF;
+        && request.resource.data.toUserEmailF == resource.data.toUserEmailF
+        && request.resource.data.requestIdF == resource.data.requestIdF
+        && request.resource.data.createdAtF == resource.data.createdAtF
+        && isShortText(request.resource.data.fromUserNameF, 120)
+        && isShortText(request.resource.data.positionF, 120)
+        && isValidReferenceStatus(request.resource.data.statusF);
     }
 
     match /requestsC/{requestId} {
-      allow create: if request.auth != null;
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          "fromUserIdF",
+          "fromUserEmailF",
+          "fromUserNameF",
+          "toNameF",
+          "positionF",
+          "tokenF",
+          "statusF",
+          "createdAtF"
+        ])
+        && request.resource.data.fromUserIdF == request.auth.uid
+        && isOptionalShortText(request.resource.data.fromUserEmailF, 254)
+        && isShortText(request.resource.data.fromUserNameF, 120)
+        && isShortText(request.resource.data.toNameF, 120)
+        && isShortText(request.resource.data.positionF, 120)
+        && isShortText(request.resource.data.tokenF, 128)
+        && request.resource.data.statusF == "pending";
       // Pending only: lets anyone with the link preview name/position before signing in.
       // Signed-in users may read any request (e.g. already confirmed when revisiting).
-      allow read: if request.auth != null || resource.data.statusF == "pending";
-      allow update: if request.auth != null
+      allow read: if isSignedIn() || resource.data.statusF == "pending";
+      allow update: if isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          "fromUserIdF",
+          "fromUserEmailF",
+          "fromUserNameF",
+          "toNameF",
+          "positionF",
+          "tokenF",
+          "statusF",
+          "createdAtF",
+          "confirmedByF",
+          "confirmedAtF",
+          "referenceIdF",
+          "toUserIdF"
+        ])
         && resource.data.statusF == "pending"
+        && request.resource.data.fromUserIdF == resource.data.fromUserIdF
+        && request.resource.data.fromUserEmailF == resource.data.fromUserEmailF
+        && request.resource.data.fromUserNameF == resource.data.fromUserNameF
+        && request.resource.data.toNameF == resource.data.toNameF
+        && request.resource.data.positionF == resource.data.positionF
+        && request.resource.data.tokenF == resource.data.tokenF
+        && request.resource.data.createdAtF == resource.data.createdAtF
         && request.resource.data.statusF == "confirmed"
+        && request.resource.data.toUserIdF == request.auth.uid
+        && isShortText(request.resource.data.referenceIdF, 128)
         && request.resource.data.confirmedByF == request.auth.uid;
       allow delete: if false;
     }

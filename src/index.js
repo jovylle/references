@@ -21,10 +21,11 @@ import {
 
 mountAccountControls({
   includeProfileLink: true,
-  includeCreateRequest: true,
+  includeCreateRequest: false,
   createRequestHref: "/create.html",
 });
-initAccountControlsDock();
+const dockController = initAccountControlsDock();
+const accountDock = document.getElementById("accountDock");
 
 renderFooterLinks(document.getElementById("homeFooter"), [
   { href: "/about.html", label: "About" },
@@ -34,6 +35,27 @@ renderFooterLinks(document.getElementById("homeFooter"), [
 const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
 const authStatus = document.getElementById("authStatus");
+const startProfileBtn = document.getElementById("startProfileBtn");
+const homeProfileUrlLine = document.getElementById("homeProfileUrlLine");
+
+function setProfileLinkVisibility(visible) {
+  if (!homeProfileUrlLine) return;
+  homeProfileUrlLine.classList.toggle("hidden", !visible);
+}
+
+function openDockPanel() {
+  dockController?.setCollapsed(false);
+}
+startProfileBtn?.addEventListener("click", (event) => {
+  // Prevent the global outside-click handler from immediately collapsing the dock.
+  event.stopPropagation();
+  if (accountDock) {
+    accountDock.classList.remove("hidden");
+    accountDock.setAttribute("aria-hidden", "false");
+  }
+  openDockPanel();
+  authStatus.textContent = "Continue with Google to start your Referly profile.";
+});
 
 function setHomeProfileLinks(slug) {
   const path = slug ? `/${slug}` : "/profile.html";
@@ -48,6 +70,7 @@ function setHomeProfileLinks(slug) {
 }
 
 function renderSignedOut() {
+  setProfileLinkVisibility(false);
   signInBtn.classList.remove("hidden");
   signOutBtn.classList.add("hidden");
   authStatus.textContent = "Not signed in.";
@@ -55,6 +78,7 @@ function renderSignedOut() {
 }
 
 async function renderSignedIn(user, slug) {
+  setProfileLinkVisibility(true);
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
   const profile = await getUserById(user.uid);
@@ -65,6 +89,7 @@ async function renderSignedIn(user, slug) {
 }
 
 function renderSignedInImmediate(user, slug = "") {
+  setProfileLinkVisibility(true);
   signInBtn.classList.add("hidden");
   signOutBtn.classList.remove("hidden");
   const fallbackName = user.email?.split("@")[0] || user.email || "Unknown";
@@ -125,4 +150,6 @@ if (cachedSession) {
     },
     cachedSession.slug
   );
+} else {
+  setProfileLinkVisibility(false);
 }
