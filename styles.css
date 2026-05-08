@@ -128,9 +128,73 @@ a {
 
 .hero-main-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.85fr);
+  gap: 24px;
   align-items: start;
+}
+
+.hero-home {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-home::after {
+  content: "";
+  position: absolute;
+  inset: auto -80px -120px auto;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(17, 75, 95, 0.16), rgba(17, 75, 95, 0));
+  pointer-events: none;
+}
+
+.hero-copy {
+  display: grid;
+  gap: 14px;
+}
+
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 75, 95, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  color: color-mix(in srgb, var(--text) 74%, var(--accent));
+  font-size: 0.84rem;
+  font-weight: var(--weight-semibold);
+}
+
+.hero-proof {
+  border: 1px solid rgba(17, 75, 95, 0.16);
+  border-radius: 18px;
+  background: rgba(220, 238, 243, 0.4);
+  padding: 18px;
+}
+
+.hero-proof-label {
+  margin: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: var(--weight-semibold);
+}
+
+.hero-proof-list {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 10px;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--text) 75%, var(--muted));
 }
 
 .account-dock {
@@ -251,9 +315,9 @@ a {
 }
 
 .how-it-works {
-  gap: 10px;
+  gap: 12px;
   border-color: rgba(17, 75, 95, 0.16);
-  background: rgba(220, 238, 243, 0.34);
+  background: rgba(220, 238, 243, 0.3);
 }
 
 .how-it-works h2 {
@@ -262,9 +326,43 @@ a {
 
 .how-it-works-list {
   margin: 0;
-  padding-left: 20px;
-  line-height: 1.75;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
   color: var(--muted);
+}
+
+.how-it-works-list li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.how-it-works-list li::before {
+  content: counter(step);
+  counter-increment: step;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 75, 95, 0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-strong);
+  font-size: 0.86rem;
+  font-weight: var(--weight-bold);
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.how-it-works-list li span {
+  line-height: 1.45;
+  padding-top: 4px;
+}
+
+.how-it-works-list {
+  counter-reset: step;
 }
 
 .home-footer {
@@ -311,6 +409,25 @@ a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+}
+
+.welcome-card {
+  gap: 10px;
+}
+
+.welcome-card-action {
+  margin: 2px 0 0;
+}
+
+.highlight-note {
+  border-color: rgba(17, 75, 95, 0.14);
+  background: rgba(255, 255, 255, 0.64);
+  padding-top: 22px;
+  padding-bottom: 22px;
+}
+
+.highlight-note p {
+  margin: 0;
 }
 
 .form label {
@@ -679,6 +796,15 @@ input:focus {
 }
 
 @media (max-width: 760px) {
+  .hero-main-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .hero-proof {
+    padding: 16px;
+  }
+
   .account-dock {
     top: 12px;
     right: 12px;

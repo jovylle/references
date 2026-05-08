@@ -8,43 +8,56 @@
   </head>
   <body>
     <main class="shell">
-      <section class="panel hero">
+      <section class="panel hero hero-home">
         <div class="hero-main-layout">
-          <div>
+          <div class="hero-copy">
             <p class="eyebrow">Reference checks</p>
             <h1>Referly</h1>
             <p class="lede">
               Build trust through mutual confirmations from real former colleagues, with stronger credibility when a LinkedIn profile is included.
             </p>
+            <div class="hero-chips" aria-label="Core benefits">
+              <span class="chip">Mutual confirmations</span>
+              <span class="chip">Shareable public profile</span>
+              <span class="chip">LinkedIn-ready credibility</span>
+            </div>
           </div>
+
+          <aside class="hero-proof" aria-label="What makes Referly useful">
+            <p class="hero-proof-label">Why people trust this</p>
+            <ul class="hero-proof-list">
+              <li>References come from real former colleagues</li>
+              <li>Claims become visible only after confirmation</li>
+              <li>Your profile URL is easy to share anywhere</li>
+            </ul>
+          </aside>
         </div>
       </section>
 
       <section class="grid">
-        <article class="panel">
+        <article class="panel welcome-card">
           <h2>Welcome to Referly</h2>
-          <p class="muted">
-            New here? Start by signing in so we can create your Referly profile page.
-          </p>
-          <p class="muted" style="margin-top: 10px;">
-            When you click the button below, we will open the floating menu on the top-right so you can continue sign in there.
-          </p>
-          <p style="margin-top: 14px; margin-bottom: 0;">
+          <p class="muted">New here? Start by signing in so we can create your Referly profile page.</p>
+          <p class="muted">When you click below, we open the top-right floating menu so you can continue sign in there.</p>
+          <p class="welcome-card-action">
             <button id="startProfileBtn" type="button" class="button button-primary">Start building my profile</button>
           </p>
         </article>
 
-        <article id="infoSection" class="panel panel-wide how-it-works stack">
+        <article id="infoSection" class="panel how-it-works stack">
           <h2>How it works</h2>
           <ol class="how-it-works-list">
-            <li>Sign in with Google to create your profile</li>
-            <li>Share the link with someone who can vouch for you</li>
-            <li>They sign in and confirm—it takes a moment</li>
-            <li>Confirmed references show on your public profile</li>
-            <li>You can add each other on your profiles if you both want that</li>
+            <li><span>Sign in with Google to create your profile</span></li>
+            <li><span>Share the link with someone who can vouch for you</span></li>
+            <li><span>They sign in and confirm. It only takes a moment</span></li>
+            <li><span>Confirmed references appear on your public profile</span></li>
+            <li><span>You can add each other on your profiles if you both want that</span></li>
           </ol>
-          <p class="muted">Add Portfolio, GitHub, and LinkedIn on your profile page. Share your profile link anywhere you need it.</p>
         </article>
+      </section>
+
+      <section class="panel panel-wide highlight-note">
+        <p class="muted">Add Portfolio, GitHub, and LinkedIn on your profile page. Share your profile link anywhere you need it.</p>
       </section>
 
       <footer id="homeFooter" class="home-footer"></footer>
