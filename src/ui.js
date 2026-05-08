@@ -100,6 +100,7 @@ export function accountControlsTemplate({
             ? `<button id="accountEditProfileBtn" type="button" class="button button-secondary hidden">Edit profile</button>`
             : ""
         }
+        <button id="accountSupportBtn" type="button" class="button button-secondary hidden">Support</button>
       </div>
     </aside>
   `;
@@ -118,6 +119,7 @@ export function initAccountControlsDock({ defaultCollapsed = true } = {}) {
   const panel = document.getElementById("accountDockPanel");
   const profileLinkAnchor = document.getElementById("homeProfileUrlAnchor");
   const copyProfileLinkBtn = document.getElementById("accountCopyProfileLinkBtn");
+  const supportBtn = document.getElementById("accountSupportBtn");
   if (!dock || !toggleBtn || !panel) return;
 
   /** @type {HTMLElement | null} */
@@ -189,7 +191,28 @@ export function initAccountControlsDock({ defaultCollapsed = true } = {}) {
     }
   };
 
+  const hasProjectMate = () =>
+    Boolean(
+      globalThis?.ProjectMate &&
+        typeof globalThis.ProjectMate.open === "function" &&
+        typeof globalThis.ProjectMate.close === "function"
+    );
+
+  const syncSupportButton = () => {
+    if (!supportBtn) return;
+    supportBtn.classList.toggle("hidden", !hasProjectMate());
+  };
+
   setCollapsed(defaultCollapsed);
+  syncSupportButton();
+
+  supportBtn?.addEventListener("click", () => {
+    if (!hasProjectMate()) return;
+    globalThis.ProjectMate.open();
+    setCollapsed(true);
+  });
+
+  globalThis.addEventListener("projectmate:ready", syncSupportButton);
 
   toggleBtn.addEventListener("click", () => {
     setCollapsed(!dock.classList.contains("is-collapsed"));

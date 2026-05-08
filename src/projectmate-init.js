@@ -62,14 +62,15 @@ function initProjectMate() {
       },
     ],
     launcher: {
+      hidden: true,
       position: "bottom-right",
       offsetX: 16,
       offsetY: 16,
-      label: "Help",
+      label: "Support",
     },
     autoOpen: {
-      hash: "help",
-      query: { name: "help", value: "1" },
+      hash: "support",
+      query: { name: "support", value: "1" },
       path: "/support",
       pathMatch: "prefix",
     },
@@ -85,6 +86,7 @@ function initProjectMate() {
 
   window.ProjectMate.init(config);
   window.__projectMateInitialized = true;
+  window.dispatchEvent(new Event("projectmate:ready"));
 }
 
 initProjectMate();
