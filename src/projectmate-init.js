@@ -8,6 +8,34 @@ function initProjectMate() {
   const config = {
     projectId: "referly",
     appUrl: "https://projectmate.uft1.com/overlay/",
+    host: {
+      id: "referly-prod",
+      name: "Referly",
+      version: "1.3.0",
+      environment: "production",
+      plan: "starter",
+      region: "ap-southeast-1",
+      locale: "en-PH",
+      timezone: "Asia/Manila",
+      supportEmail: "referly@uft1.com",
+      modules: {
+        feedback: true,
+        updates: true,
+        issues: false,
+        chat: false,
+      },
+      permissions: {
+        owner: ["view", "manage", "publish"],
+        user: ["view"],
+      },
+    },
+    multiHost: {
+      enabled: false,
+      activeHostId: "referly-prod",
+      totalHosts: 1,
+      canSwitchHosts: false,
+      benchmarkLabel: "Single-host deployment",
+    },
     about: {
       title: "Referly",
       description: "Reference checks with mutual confirmations from real former colleagues.",
@@ -26,6 +54,11 @@ function initProjectMate() {
       privacy: window.location.origin + "/privacy.html",
     },
     changelog: [
+      {
+        version: "Host v1.3.0",
+        date: "2026-05-09",
+        bullets: ["Current Referly production host metadata and ProjectMate integration active."],
+      },
       {
         version: "1.3.0",
         date: "2026-05-09",
@@ -60,6 +93,11 @@ function initProjectMate() {
           "Shipped request creation, confirmation, and public profile pages.",
         ],
       },
+    ],
+    quotes: [
+      "Trust grows when real people confirm real work.",
+      "Ship, learn, improve.",
+      "Clarity beats cleverness.",
     ],
     launcher: {
       hidden: true,
