@@ -26,7 +26,7 @@ mountAccountControls({
   includeCreateRequest: true,
   createRequestHref: "/create.html",
 });
-initAccountControlsDock();
+const accountDockControls = initAccountControlsDock();
 
 renderFooterLinks(document.getElementById("confirmFooter"), [
   { href: "/", label: "Home" },
@@ -39,6 +39,27 @@ const signOutBtn = document.getElementById("signOutBtn");
 const authStatus = document.getElementById("authStatus");
 const createRequestLink = document.getElementById("accountCreateRequestLink");
 const requestState = document.getElementById("requestState");
+
+async function handleGoogleSignIn({ expandDock = false } = {}) {
+  if (expandDock) {
+    accountDockControls?.setCollapsed(false);
+  }
+
+  try {
+    const result = await signInWithPopup(auth, provider);
+    signInBtn.classList.add("hidden");
+    signOutBtn.classList.remove("hidden");
+    const { slug } = await ensureUserDocument(result.user);
+    const profile = await getUserById(result.user.uid);
+    const resolvedName = String(profile?.nameF || "").trim() || result.user.email?.split("@")[0] || result.user.email || "Unknown";
+    authStatus.textContent = `Signed in as ${resolvedName}`;
+    setHomeProfileLinks(slug);
+    saveSessionHint(result.user, slug);
+  } catch (error) {
+    console.error(error);
+    authStatus.textContent = getFriendlyErrorMessage(error);
+  }
+}
 
 function setCreateRequestVisibility(visible) {
   if (!createRequestLink) return;
@@ -124,8 +145,14 @@ async function renderSignedOutRequest() {
       <p class="reference-name">${escapeHtml(data.toNameF)}</p>
       <p class="reference-position">${escapeHtml(data.positionF)}</p>
       <p class="muted" style="margin-top: 16px;">Sign in with Google above to confirm. You can’t complete this step until you’re signed in.</p>
+      <button id="inlineSignInBtn" class="button button-primary">Sign in with Google</button>
     </div>
   `;
+
+  const inlineSignInBtn = document.getElementById("inlineSignInBtn");
+  inlineSignInBtn?.addEventListener("click", async () => {
+    await handleGoogleSignIn({ expandDock: true });
+  });
 }
 
 async function renderRequest(user) {
@@ -243,20 +270,7 @@ async function renderRequest(user) {
 }
 
 signInBtn.addEventListener("click", async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    signInBtn.classList.add("hidden");
-    signOutBtn.classList.remove("hidden");
-    const { slug } = await ensureUserDocument(result.user);
-    const profile = await getUserById(result.user.uid);
-    const resolvedName = String(profile?.nameF || "").trim() || result.user.email?.split("@")[0] || result.user.email || "Unknown";
-    authStatus.textContent = `Signed in as ${resolvedName}`;
-    setHomeProfileLinks(slug);
-    saveSessionHint(result.user, slug);
-  } catch (error) {
-    console.error(error);
-    authStatus.textContent = getFriendlyErrorMessage(error);
-  }
+  await handleGoogleSignIn();
 });
 
 signOutBtn.addEventListener("click", async () => {
