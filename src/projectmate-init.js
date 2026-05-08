@@ -27,9 +27,38 @@ function initProjectMate() {
     },
     changelog: [
       {
-        version: "1.0.0",
+        version: "1.3.0",
         date: "2026-05-09",
-        bullets: ["Integrated ProjectMate help and updates overlay."],
+        bullets: [
+          "Added ProjectMate embedded Help and Updates overlay across all pages.",
+          "Enabled in-app feedback delivery via Web3Forms.",
+        ],
+      },
+      {
+        version: "1.2.0",
+        date: "2026-05-08",
+        bullets: [
+          "Improved homepage onboarding flow and overall copy clarity.",
+          "Added inline sign-in action on confirmation for a faster approval path.",
+          "Corrected repository and privacy contact links.",
+        ],
+      },
+      {
+        version: "1.1.0",
+        date: "2026-05-07",
+        bullets: [
+          "Added floating account action dock and dedicated request page.",
+          "Hardened Firestore rules and reduced duplicate/invalid confirmation edge cases.",
+          "Improved profile editing reliability and protected user-edited profile fields.",
+        ],
+      },
+      {
+        version: "1.0.0",
+        date: "2026-05-05",
+        bullets: [
+          "Launched Referly with Google sign-in and Firebase-backed reference flow.",
+          "Shipped request creation, confirmation, and public profile pages.",
+        ],
       },
     ],
     launcher: {
