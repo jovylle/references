@@ -1,31 +1,6 @@
-import {
-  auth,
-  onAuthStateChanged,
-  provider,
-  signInWithPopup,
-} from "./firebase.js?v=2";
-import {
-  clearSessionHint,
-  initAccountControlsDock,
-  mountAccountControls,
-  readSessionHint,
-  renderFooterLinks,
-  saveSessionHint,
-} from "./ui.js?v=8";
-import {
-  createRequest,
-  ensureUserDocument,
-  signOutIfNeeded,
-  getFriendlyErrorMessage,
-  getUserById,
-} from "./data.js?v=5";
-
-mountAccountControls({
-  includeProfileLink: true,
-  includeCreateRequest: true,
-  createRequestHref: "/create.html",
-});
-initAccountControlsDock();
+import { auth } from "./firebase.js";
+import { initAuthSession, renderFooterLinks } from "./ui.js";
+import { createRequest, getFriendlyErrorMessage, getUserById } from "./data.js";
 
 renderFooterLinks(document.getElementById("createFooter"), [
   { href: "/", label: "Home" },
@@ -33,89 +8,65 @@ renderFooterLinks(document.getElementById("createFooter"), [
   { href: "/privacy.html", label: "Privacy Policy" },
 ]);
 
-const signInBtn = document.getElementById("signInBtn");
-const signOutBtn = document.getElementById("signOutBtn");
-const authStatus = document.getElementById("authStatus");
-const createRequestLink = document.getElementById("accountCreateRequestLink");
 const requestForm = document.getElementById("requestForm");
 const requestHint = document.getElementById("requestHint");
 const createdLink = document.getElementById("createdLink");
 const createdLinkValue = document.getElementById("createdLinkValue");
 
-function setCreateRequestVisibility(visible) {
-  if (!createRequestLink) return;
-  createRequestLink.classList.toggle("hidden", !visible);
-}
-
-function setProfileLink(slug) {
+function setProfileLink(dock, slug) {
   const path = slug ? `/${slug}` : "/profile.html";
   const label = slug ? path : "My profile";
-  const anchor = document.getElementById("homeProfileUrlAnchor");
-  if (anchor) {
-    anchor.href = path;
-    anchor.textContent = label;
+  if (dock.profileUrlAnchor) {
+    dock.profileUrlAnchor.href = path;
+    dock.profileUrlAnchor.textContent = label;
   }
 }
 
-function renderSignedOut() {
-  setCreateRequestVisibility(false);
+function onSignedOut(dock) {
+  dock.createRequestLink?.classList.add("hidden");
   requestForm.classList.add("hidden");
   requestHint.classList.remove("hidden");
-  signInBtn.classList.remove("hidden");
-  signOutBtn.classList.add("hidden");
-  authStatus.textContent = "Not signed in.";
-  setProfileLink("");
+  dock.signInBtn?.classList.remove("hidden");
+  dock.signOutBtn?.classList.add("hidden");
+  if (dock.authStatus) dock.authStatus.textContent = "Not signed in.";
+  setProfileLink(dock, "");
+  if (createdLink) createdLink.classList.add("hidden");
+  if (createdLinkValue) {
+    createdLinkValue.textContent = "";
+    createdLinkValue.setAttribute("href", "#");
+  }
 }
 
-async function renderSignedIn(user, slug) {
-  setCreateRequestVisibility(true);
+function onSignedInImmediate(user, slug, dock) {
+  dock.createRequestLink?.classList.remove("hidden");
   requestForm.classList.remove("hidden");
   requestHint.classList.add("hidden");
-  signInBtn.classList.add("hidden");
-  signOutBtn.classList.remove("hidden");
+  dock.signInBtn?.classList.add("hidden");
+  dock.signOutBtn?.classList.remove("hidden");
+  const fallbackName = user.email?.split("@")[0] || user.email || "Unknown";
+  if (dock.authStatus) dock.authStatus.textContent = `Signed in as ${fallbackName}`;
+  if (slug) setProfileLink(dock, slug);
+}
+
+async function onSignedIn(user, slug, dock) {
   const profile = await getUserById(user.uid);
   const resolvedName = String(profile?.nameF || "").trim() || user.email?.split("@")[0] || user.email || "Unknown";
-  authStatus.textContent = `Signed in as ${resolvedName}`;
-  const resolvedSlug = slug || profile?.slugF || "";
-  setProfileLink(resolvedSlug);
+  if (dock.authStatus) dock.authStatus.textContent = `Signed in as ${resolvedName}`;
+  setProfileLink(dock, slug || profile?.slugF || "");
 }
 
-function renderSignedInImmediate(user, slug = "") {
-  setCreateRequestVisibility(true);
-  requestForm.classList.remove("hidden");
-  requestHint.classList.add("hidden");
-  signInBtn.classList.add("hidden");
-  signOutBtn.classList.remove("hidden");
-  const fallbackName = user.email?.split("@")[0] || user.email || "Unknown";
-  authStatus.textContent = `Signed in as ${fallbackName}`;
-  if (slug) setProfileLink(slug);
-}
-
-signInBtn.addEventListener("click", async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    renderSignedInImmediate(result.user);
-    const { slug } = await ensureUserDocument(result.user);
-    setProfileLink(slug);
-    saveSessionHint(result.user, slug);
-  } catch (error) {
-    authStatus.textContent = getFriendlyErrorMessage(error);
-  }
+initAuthSession({
+  dockOptions: {
+    includeProfileLink: true,
+    includeCreateRequest: true,
+    createRequestHref: "/create.html",
+  },
+  onSignedOut,
+  onSignedInImmediate,
+  onSignedIn,
 });
 
-signOutBtn.addEventListener("click", async () => {
-  try {
-    await signOutIfNeeded();
-    clearSessionHint();
-    if (createdLink) createdLink.classList.add("hidden");
-    if (createdLinkValue) {
-      createdLinkValue.textContent = "";
-      createdLinkValue.setAttribute("href", "#");
-    }
-  } catch (error) {
-    authStatus.textContent = getFriendlyErrorMessage(error);
-  }
-});
+const authStatus = document.getElementById("authStatus");
 
 requestForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -125,11 +76,12 @@ requestForm.addEventListener("submit", async (event) => {
   const submitBtn = requestForm.querySelector("button[type=submit]");
   const toName = document.getElementById("toName").value.trim();
   const position = document.getElementById("position").value.trim();
+  const company = document.getElementById("company").value.trim();
 
   try {
     submitBtn.disabled = true;
     submitBtn.textContent = "Generating link...";
-    const result = await createRequest(user, toName, position);
+    const result = await createRequest(user, toName, position, company);
     if (createdLink) createdLink.classList.remove("hidden");
     if (createdLinkValue) {
       createdLinkValue.textContent = result.link;
@@ -142,42 +94,8 @@ requestForm.addEventListener("submit", async (event) => {
     }, 2000);
   } catch (error) {
     console.error(error);
-    authStatus.textContent = getFriendlyErrorMessage(error);
+    if (authStatus) authStatus.textContent = getFriendlyErrorMessage(error);
     submitBtn.textContent = "Generate link";
     submitBtn.disabled = false;
   }
 });
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    clearSessionHint();
-    renderSignedOut();
-    return;
-  }
-
-  renderSignedInImmediate(user);
-  saveSessionHint(user);
-
-  try {
-    const { slug } = await ensureUserDocument(user);
-    saveSessionHint(user, slug);
-    await renderSignedIn(user, slug);
-  } catch (error) {
-    console.error(error);
-    authStatus.textContent = getFriendlyErrorMessage(error);
-  }
-});
-
-const cachedSession = readSessionHint();
-if (cachedSession) {
-  renderSignedInImmediate(
-    {
-      uid: cachedSession.uid,
-      email: cachedSession.email,
-      displayName: cachedSession.displayName,
-    },
-    cachedSession.slug
-  );
-} else {
-  setCreateRequestVisibility(false);
-}

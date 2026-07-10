@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="176" height="40" viewBox="0 0 176 40" role="img" aria-label="Referly Verified">
+  <rect x="0.5" y="0.5" width="175" height="39" rx="19.5" fill="#114b5f" stroke="#0c3441" />
+  <circle cx="21" cy="20" r="11" fill="#ffffff" fill-opacity="0.14" />
+  <path d="M15.5 20.2 L19 23.7 L26.5 15.8" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+  <text x="38" y="25" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Referly Verified</text>
+</svg>

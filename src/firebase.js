@@ -1,5 +1,9 @@
 import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import {
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app-check.js";
+import {
   GoogleAuthProvider,
   getAuth,
   onAuthStateChanged,
@@ -21,9 +25,18 @@ import {
   updateDoc,
   where,
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+// App Check is opt-in: skip gracefully until a real reCAPTCHA v3 site key is configured
+// (see ENVIRONMENT.md for the setup steps), so this doesn't break local/dev usage.
+if (recaptchaSiteKey) {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
 
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();

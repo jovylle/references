@@ -39,6 +39,7 @@ service cloud.firestore {
           "toUserIdF",
           "toUserEmailF",
           "positionF",
+          "companyF",
           "statusF",
           "createdAtF"
         ])
@@ -48,6 +49,7 @@ service cloud.firestore {
         && isShortText(request.resource.data.toUserIdF, 128)
         && isOptionalShortText(request.resource.data.toUserEmailF, 254)
         && isShortText(request.resource.data.positionF, 120)
+        && isOptionalShortText(request.resource.data.get("companyF", null), 120)
         && request.resource.data.statusF == "confirmed"
         && (
           (
@@ -57,6 +59,8 @@ service cloud.firestore {
             && request.auth.uid == request.resource.data.fromUserIdF
             && request.resource.data.toUserIdF == get(/databases/$(database)/documents/requestsC/$(refId)).data.fromUserIdF
             && request.resource.data.positionF == get(/databases/$(database)/documents/requestsC/$(refId)).data.positionF
+            // A single account cannot both create a request and confirm it.
+            && request.auth.uid != get(/databases/$(database)/documents/requestsC/$(refId)).data.fromUserIdF
           )
           || (
             request.resource.data.toUserIdF == request.auth.uid
@@ -74,6 +78,7 @@ service cloud.firestore {
           "toUserIdF",
           "toUserEmailF",
           "positionF",
+          "companyF",
           "statusF",
           "createdAtF"
         ])
@@ -83,6 +88,7 @@ service cloud.firestore {
         && request.resource.data.toUserEmailF == resource.data.toUserEmailF
         && request.resource.data.requestIdF == resource.data.requestIdF
         && request.resource.data.createdAtF == resource.data.createdAtF
+        && request.resource.data.get("companyF", null) == resource.data.get("companyF", null)
         && isShortText(request.resource.data.fromUserNameF, 120)
         && isShortText(request.resource.data.positionF, 120)
         && isValidReferenceStatus(request.resource.data.statusF);
@@ -96,6 +102,7 @@ service cloud.firestore {
           "fromUserNameF",
           "toNameF",
           "positionF",
+          "companyF",
           "tokenF",
           "statusF",
           "createdAtF"
@@ -105,6 +112,7 @@ service cloud.firestore {
         && isShortText(request.resource.data.fromUserNameF, 120)
         && isShortText(request.resource.data.toNameF, 120)
         && isShortText(request.resource.data.positionF, 120)
+        && isOptionalShortText(request.resource.data.get("companyF", null), 120)
         && isShortText(request.resource.data.tokenF, 128)
         && request.resource.data.statusF == "pending";
       // Pending only: lets anyone with the link preview name/position before signing in.
@@ -117,6 +125,7 @@ service cloud.firestore {
           "fromUserNameF",
           "toNameF",
           "positionF",
+          "companyF",
           "tokenF",
           "statusF",
           "createdAtF",
@@ -131,10 +140,13 @@ service cloud.firestore {
         && request.resource.data.fromUserNameF == resource.data.fromUserNameF
         && request.resource.data.toNameF == resource.data.toNameF
         && request.resource.data.positionF == resource.data.positionF
+        && request.resource.data.get("companyF", null) == resource.data.get("companyF", null)
         && request.resource.data.tokenF == resource.data.tokenF
         && request.resource.data.createdAtF == resource.data.createdAtF
         && request.resource.data.statusF == "confirmed"
         && request.resource.data.toUserIdF == request.auth.uid
+        // A single account cannot both create a request and confirm it.
+        && resource.data.fromUserIdF != request.auth.uid
         && isShortText(request.resource.data.referenceIdF, 128)
         && request.resource.data.confirmedByF == request.auth.uid;
       allow delete: if false;

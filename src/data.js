@@ -11,8 +11,8 @@ import {
   setDoc,
   updateDoc,
   where,
-} from "./firebase.js?v=2";
-import { auth, db, signOut } from "./firebase.js?v=2";
+} from "./firebase.js";
+import { auth, db, signOut } from "./firebase.js";
 
 export function slugify(name) {
   return (name || "")
@@ -102,6 +102,13 @@ export async function updateUserLinks(userId, links) {
   });
 }
 
+export async function updateUserContact(userId, { phone, consent }) {
+  await updateDoc(doc(db, "usersC", userId), {
+    contactPhoneF: phone || "",
+    contactShareConsentF: Boolean(consent),
+  });
+}
+
 export async function updateUserName(userId, newName) {
   if (!newName?.trim()) throw new Error("Name cannot be empty.");
   await updateDoc(doc(db, "usersC", userId), { nameF: newName.trim() });
@@ -146,7 +153,7 @@ export async function getUserBySlug(slug) {
   return { ...docSnap.data(), id: docSnap.id };
 }
 
-export async function createRequest(user, toName, position) {
+export async function createRequest(user, toName, position, company = "") {
   const token = generateToken();
   const userSnap = await getDoc(doc(db, "usersC", user.uid));
   const profileName = userSnap.exists() ? String(userSnap.data()?.nameF || "").trim() : "";
@@ -159,6 +166,7 @@ export async function createRequest(user, toName, position) {
     fromUserNameF: fromUserName,
     toNameF: toName,
     positionF: position,
+    companyF: company || "",
     tokenF: token,
     statusF: "pending",
     createdAtF: serverTimestamp(),
@@ -199,6 +207,9 @@ export async function approveRequest(requestRecord, currentUser) {
     const existingReferenceSnap = await tx.get(referenceRef);
 
     const latestData = latestRequestSnap.data();
+    if (latestData.fromUserIdF === currentUser.uid) {
+      throw new Error("You can't confirm your own request.");
+    }
     if (latestData.statusF !== "pending") {
       // Idempotent success path: request was already confirmed to this reference.
       if (latestData.referenceIdF === referenceRef.id && existingReferenceSnap.exists()) return;
@@ -213,6 +224,7 @@ export async function approveRequest(requestRecord, currentUser) {
       toUserIdF: latestData.fromUserIdF,
       toUserEmailF: latestData.fromUserEmailF || "",
       positionF: latestData.positionF,
+      companyF: latestData.companyF || "",
       statusF: "confirmed",
       createdAtF: serverTimestamp(),
     });
@@ -227,6 +239,20 @@ export async function approveRequest(requestRecord, currentUser) {
   });
 }
 
+/** Path B of referencesC create: reciprocal add writes onto the signed-in user's own profile. */
+export async function addReciprocalReference({ fromUserId, fromUserEmail, fromUserName, toUserId, toUserEmail, position }) {
+  await addDoc(collection(db, "referencesC"), {
+    fromUserIdF: fromUserId,
+    fromUserEmailF: fromUserEmail || "",
+    fromUserNameF: fromUserName || "Unknown",
+    toUserIdF: toUserId,
+    toUserEmailF: toUserEmail || "",
+    positionF: position,
+    statusF: "confirmed",
+    createdAtF: serverTimestamp(),
+  });
+}
+
 export async function getReferences(userId) {
   const q = query(
     collection(db, "referencesC"),
@@ -236,6 +262,19 @@ export async function getReferences(userId) {
 
   const snap = await getDocs(q);
   return snap.docs.map((entry) => ({ id: entry.id, ...entry.data() }));
+}
+
+/** Mutual = fromUserId has also confirmed a reference for toUserId (reciprocal vouching). */
+export async function hasMutualReference(fromUserId, toUserId) {
+  const q = query(
+    collection(db, "referencesC"),
+    where("fromUserIdF", "==", fromUserId),
+    where("toUserIdF", "==", toUserId),
+    where("statusF", "==", "confirmed"),
+    limit(1),
+  );
+  const snap = await getDocs(q);
+  return !snap.empty;
 }
 
 export async function updateUserSlug(userId, newSlug) {

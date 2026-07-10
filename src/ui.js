@@ -1,9 +1,6 @@
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/"/g, "&quot;");
-}
+import { auth, onAuthStateChanged, provider, signInWithPopup } from "./firebase.js";
+import { ensureUserDocument, getFriendlyErrorMessage, signOutIfNeeded } from "./data.js";
+import { escapeHtml } from "./utils.js";
 
 const SESSION_HINT_STORAGE_KEY = "referly:lastSessionHint";
 
@@ -113,6 +110,33 @@ export function mountAccountControls(options = {}) {
   return document.getElementById("accountDock");
 }
 
+export async function copyText(text) {
+  if (!text) return false;
+  try {
+    if (globalThis.navigator?.clipboard?.writeText) {
+      await globalThis.navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (_error) {
+    // Continue to fallback.
+  }
+
+  try {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const copied = document.execCommand("copy");
+    document.body.removeChild(area);
+    return copied;
+  } catch (_error) {
+    return false;
+  }
+}
+
 export function initAccountControlsDock({ defaultCollapsed = true } = {}) {
   const dock = document.getElementById("accountDock");
   const toggleBtn = document.getElementById("accountDockToggleBtn");
@@ -162,33 +186,6 @@ export function initAccountControlsDock({ defaultCollapsed = true } = {}) {
     globalThis.setTimeout(() => {
       copyProfileLinkBtn.textContent = "Copy link";
     }, 1200);
-  };
-
-  const copyText = async (text) => {
-    if (!text) return false;
-    try {
-      if (globalThis.navigator?.clipboard?.writeText) {
-        await globalThis.navigator.clipboard.writeText(text);
-        return true;
-      }
-    } catch (_error) {
-      // Continue to fallback.
-    }
-
-    try {
-      const area = document.createElement("textarea");
-      area.value = text;
-      area.setAttribute("readonly", "");
-      area.style.position = "fixed";
-      area.style.opacity = "0";
-      document.body.appendChild(area);
-      area.select();
-      const copied = document.execCommand("copy");
-      document.body.removeChild(area);
-      return copied;
-    } catch (_error) {
-      return false;
-    }
   };
 
   const hasProjectMate = () =>
@@ -261,6 +258,120 @@ export function initAccountControlsDock({ defaultCollapsed = true } = {}) {
   });
 
   return { setCollapsed };
+}
+
+/**
+ * Shared account-dock + Firebase auth wiring used by every page.
+ *
+ * Mounts the dock, wires sign-in/out, bootstraps from the cached session hint, and
+ * subscribes to onAuthStateChanged. Callbacks receive a `dock` object of the dock's
+ * own elements (signInBtn, signOutBtn, authStatus, etc.) as their last argument
+ * instead of pages pre-fetching them, since those elements don't exist until this
+ * function mounts the dock — pre-fetching from page-level consts would race the mount.
+ *
+ * @param {{
+ *   dockOptions?: object,
+ *   awaitReady?: boolean,
+ *   onSignedOut?: (dock: object) => void,
+ *   onSignedInImmediate?: (user: object, slug: string, dock: object) => void,
+ *   onSignedIn?: (user: object, slug: string, dock: object) => (void | Promise<void>),
+ *   onAuthResolved?: (user: object | null) => (void | Promise<void>),
+ * }} options
+ */
+export function initAuthSession({
+  dockOptions = {},
+  awaitReady = false,
+  onSignedOut,
+  onSignedInImmediate,
+  onSignedIn,
+  onAuthResolved,
+} = {}) {
+  mountAccountControls(dockOptions);
+  const dockControls = initAccountControlsDock();
+
+  const dock = {
+    signInBtn: document.getElementById("signInBtn"),
+    signOutBtn: document.getElementById("signOutBtn"),
+    authStatus: document.getElementById("authStatus"),
+    createRequestLink: document.getElementById("accountCreateRequestLink"),
+    profileUrlLine: document.getElementById("homeProfileUrlLine"),
+    profileUrlAnchor: document.getElementById("homeProfileUrlAnchor"),
+    editProfileBtn: document.getElementById("accountEditProfileBtn"),
+    controls: dockControls,
+  };
+
+  const reportError = (error) => {
+    console.error(error);
+    if (dock.authStatus) dock.authStatus.textContent = getFriendlyErrorMessage(error);
+  };
+
+  async function signIn() {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      onSignedInImmediate?.(result.user, "", dock);
+      const { slug } = await ensureUserDocument(result.user);
+      saveSessionHint(result.user, slug);
+      await onSignedIn?.(result.user, slug, dock);
+    } catch (error) {
+      reportError(error);
+    }
+  }
+
+  async function signOutFlow() {
+    try {
+      await signOutIfNeeded();
+      clearSessionHint();
+      onSignedOut?.(dock);
+    } catch (error) {
+      reportError(error);
+    }
+  }
+
+  dock.signInBtn?.addEventListener("click", () => signIn());
+  dock.signOutBtn?.addEventListener("click", () => signOutFlow());
+
+  const cachedSession = readSessionHint();
+  if (cachedSession) {
+    onSignedInImmediate?.(
+      { uid: cachedSession.uid, email: cachedSession.email, displayName: cachedSession.displayName },
+      cachedSession.slug,
+      dock
+    );
+  } else {
+    onSignedOut?.(dock);
+  }
+
+  const subscribe = () => {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        clearSessionHint();
+        onSignedOut?.(dock);
+        await onAuthResolved?.(null);
+        return;
+      }
+
+      onSignedInImmediate?.(user, "", dock);
+      saveSessionHint(user);
+
+      try {
+        const { slug } = await ensureUserDocument(user);
+        saveSessionHint(user, slug);
+        await onSignedIn?.(user, slug, dock);
+      } catch (error) {
+        reportError(error);
+      }
+
+      await onAuthResolved?.(user);
+    });
+  };
+
+  if (awaitReady) {
+    auth.authStateReady().then(subscribe);
+  } else {
+    subscribe();
+  }
+
+  return { dockControls, dock, signIn };
 }
 
 export function renderFooterLinks(container, links) {

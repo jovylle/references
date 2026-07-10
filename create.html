@@ -32,6 +32,10 @@
             Their role or how you know them
             <input id="position" type="text" placeholder="e.g. Backend dev on our team" maxlength="120" required />
           </label>
+          <label>
+            Where you worked together <span class="field-optional-hint">(optional)</span>
+            <input id="company" type="text" placeholder="e.g. Acme Corp" maxlength="120" />
+          </label>
           <button type="submit" class="button button-primary">Generate link</button>
         </form>
         <div id="requestHint" class="hint">
@@ -47,7 +51,7 @@
     </main>
 
     <script src="https://projectmate.uft1.com/embed.js"></script>
-    <script type="module" src="/src/projectmate-init.js?v=1"></script>
-    <script type="module" src="/src/create.js?v=1"></script>
+    <script type="module" src="/src/projectmate-init.js"></script>
+    <script type="module" src="/src/create.js"></script>
   </body>
 </html>

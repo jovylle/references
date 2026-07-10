@@ -6,3 +6,7 @@ export const firebaseConfig = {
   messagingSenderId: "764342234497",
   appId: "1:764342234497:web:d06fd9a5f1fe93514f8c80"
 };
+
+// Fill in with a reCAPTCHA v3 site key to enable Firebase App Check (see ENVIRONMENT.md).
+// Left blank, App Check initialization is skipped entirely.
+export const recaptchaSiteKey = "";

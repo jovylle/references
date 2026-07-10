@@ -14,6 +14,7 @@
   --accent-strong: #0c3441;
   --accent-soft: #dceef3;
   --success: #1f6b45;
+  --danger: #b3261e;
   --focus-ring: rgba(17, 75, 95, 0.24);
 
   /* Typography: set primary fonts and emphasis */
@@ -437,6 +438,11 @@ a {
   color: var(--muted);
 }
 
+.field-optional-hint {
+  font-weight: var(--weight-regular);
+  opacity: 0.85;
+}
+
 input {
   width: 100%;
   border: 1px solid rgba(58, 47, 37, 0.16);
@@ -563,6 +569,18 @@ input:focus {
   gap: 8px;
 }
 
+.contact-available-chip {
+  justify-self: end;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--success) 24%, white);
+  background: color-mix(in srgb, var(--success) 10%, white);
+  color: var(--success);
+  font-size: 0.9rem;
+  font-weight: var(--weight-semibold);
+}
+
 .profile-links-kicker {
   margin: 0;
   color: var(--muted);
@@ -626,6 +644,7 @@ input:focus {
 
 .profile-reference-list {
   margin-top: 2px;
+  gap: 16px;
 }
 
 .profile-empty-state {
@@ -637,6 +656,28 @@ input:focus {
   max-width: 62ch;
   color: var(--muted);
   line-height: 1.55;
+}
+
+.references-trust-summary {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: var(--weight-semibold);
+  color: var(--accent-strong);
+}
+
+.reference-confirmed-date {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.reference-name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.reference-name a:hover {
+  text-decoration: underline;
 }
 
 .profile-divider {
@@ -795,6 +836,159 @@ input:focus {
   min-width: 180px;
 }
 
+/* Edit-panel utility classes (profile.js templates) */
+
+.edit-panel-heading {
+  margin-top: 0;
+  font-size: 1.15rem;
+}
+
+.edit-panel-status {
+  min-height: 1.25em;
+}
+
+.field-group {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.field-group-first {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.field-kicker {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.field-label-sm {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.field-input {
+  margin-top: var(--space-2);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field-input-sm {
+  margin-top: var(--space-1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.checkbox-input {
+  width: auto;
+}
+
+.profile-edit-only {
+  margin-top: var(--space-4);
+}
+
+.profile-edit-only .field-label-sm {
+  display: block;
+}
+
+.profile-edit-only .field-label-sm + .field-label-sm {
+  margin-top: var(--space-3);
+}
+
+.ref-edit-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.reference-confirmation-icon-tight {
+  margin-top: var(--space-3);
+}
+
+.button-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+}
+
+.banner-notice {
+  margin: 0 0 var(--space-5);
+  padding: var(--space-3) 14px;
+  background: rgba(17, 75, 95, 0.06);
+  border-radius: 8px;
+}
+
+/* Static content-page utility classes (about.html / privacy.html) */
+
+.section-heading {
+  margin-top: var(--space-6);
+}
+
+.section-heading-sm {
+  margin-top: var(--space-7);
+  font-size: 1.3rem;
+}
+
+.mt-space-5 {
+  margin-top: var(--space-5);
+}
+
+.back-link-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: var(--space-5);
+}
+
+.roomy-list {
+  line-height: 1.8;
+}
+
+.mt-gap {
+  margin-top: var(--space-3);
+}
+
+.muted-text {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.muted-text-list {
+  color: var(--muted);
+  line-height: 1.6;
+  padding-left: var(--space-5);
+}
+
+.content-divider {
+  margin: 40px 0;
+  border: 0;
+  border-top: 1px solid var(--panel-border);
+}
+
+.content-footer {
+  text-align: center;
+  margin-top: 40px;
+  padding: 20px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.content-footer a {
+  color: var(--muted);
+}
+
+.content-footer a + a {
+  margin-left: var(--space-3);
+}
+
 @media (max-width: 760px) {
   .hero-main-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -817,6 +1011,10 @@ input:focus {
 
   .profile-links-wrap {
     justify-content: start;
+  }
+
+  .contact-available-chip {
+    justify-self: start;
   }
 
   .profile-links-kicker {

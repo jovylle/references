@@ -1,14 +1,12 @@
 import { initAuthSession, renderFooterLinks } from "./ui.js";
 import { getUserById } from "./data.js";
 
-renderFooterLinks(document.getElementById("homeFooter"), [
-  { href: "/about.html", label: "About" },
+renderFooterLinks(document.getElementById("aboutFooter"), [
+  { href: "/", label: "Home" },
   { href: "/privacy.html", label: "Privacy Policy" },
 ]);
 
-const startProfileBtn = document.getElementById("startProfileBtn");
-
-function setHomeProfileLinks(dock, slug) {
+function setProfileLink(dock, slug) {
   const path = slug ? `/${slug}` : "/profile.html";
   const label = slug ? path : "My profile";
   if (dock.profileUrlAnchor) {
@@ -19,49 +17,37 @@ function setHomeProfileLinks(dock, slug) {
 
 function onSignedOut(dock) {
   dock.profileUrlLine?.classList.add("hidden");
+  dock.createRequestLink?.classList.add("hidden");
   dock.signInBtn?.classList.remove("hidden");
   dock.signOutBtn?.classList.add("hidden");
   if (dock.authStatus) dock.authStatus.textContent = "Not signed in.";
-  setHomeProfileLinks(dock, "");
+  setProfileLink(dock, "");
 }
 
 function onSignedInImmediate(user, slug, dock) {
   dock.profileUrlLine?.classList.remove("hidden");
+  dock.createRequestLink?.classList.remove("hidden");
   dock.signInBtn?.classList.add("hidden");
   dock.signOutBtn?.classList.remove("hidden");
   const fallbackName = user.email?.split("@")[0] || user.email || "Unknown";
   if (dock.authStatus) dock.authStatus.textContent = `Signed in as ${fallbackName}`;
-  if (slug) setHomeProfileLinks(dock, slug);
+  if (slug) setProfileLink(dock, slug);
 }
 
 async function onSignedIn(user, slug, dock) {
   const profile = await getUserById(user.uid);
   const resolvedName = String(profile?.nameF || "").trim() || user.email?.split("@")[0] || user.email || "Unknown";
   if (dock.authStatus) dock.authStatus.textContent = `Signed in as ${resolvedName}`;
-  setHomeProfileLinks(dock, slug || profile?.slugF || "");
+  setProfileLink(dock, slug || profile?.slugF || "");
 }
 
-const authSession = initAuthSession({
+initAuthSession({
   dockOptions: {
     includeProfileLink: true,
-    includeCreateRequest: false,
+    includeCreateRequest: true,
     createRequestHref: "/create.html",
   },
   onSignedOut,
   onSignedInImmediate,
   onSignedIn,
-});
-
-const accountDock = document.getElementById("accountDock");
-
-startProfileBtn?.addEventListener("click", (event) => {
-  // Prevent the global outside-click handler from immediately collapsing the dock.
-  event.stopPropagation();
-  if (accountDock) {
-    accountDock.classList.remove("hidden");
-    accountDock.setAttribute("aria-hidden", "false");
-  }
-  authSession.dockControls?.setCollapsed(false);
-  const authStatus = document.getElementById("authStatus");
-  if (authStatus) authStatus.textContent = "Continue with Google to start your Referly profile.";
 });
